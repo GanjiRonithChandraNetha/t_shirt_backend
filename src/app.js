@@ -1,5 +1,9 @@
 import express from 'express';
+import collegeRoutes  from './modules/colleges/college.routers.js';
+
 
 const app = express();
+app.use(express.json())
+app.use("/college",collegeRoutes);
 
-app.listen(3000,()=>console.log("listing to port 3000"));
+export default app;
