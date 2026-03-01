@@ -1,0 +1,615 @@
+API contract
+
+backend organization:
+API Layer        → HTTP, validation, status codes
+Business Layer   → rules, flows, decisions
+Data Layer       → SQL, transactions
+
+standard response:
+
+{
+  "success": true | false,
+  "message": "Human-readable message (optional on success, required on error)",
+  "data": { } | [ ],
+  "errors": [
+    {
+      "code": "ERROR_CODE",
+      "field": "fieldName (if validation error)",
+      "message": "Human-readable detail"
+    }
+  ]
+}
+
+Code	Meaning
+200	OK — successful read or update
+201	Created — resource created
+204	No Content — successful delete with no body
+400	Bad Request — validation failure, malformed input
+401	Unauthorized — missing or invalid auth token
+403	Forbidden — authenticated but not permitted
+404	Not Found — resource does not exist
+409	Conflict — state violation (duplicate, already actioned)
+429	Too Many Requests — rate limit exceeded
+500	Internal Server Error — unexpected server failure
+
+Authentication:
+
+- getColleges():
+path: GET /register/colleges
+success:
+data:{
+	items:[
+		{
+			college_names,
+			collegeId
+		},...
+	],
+	total
+}
+
+- getBatches(collegeId)
+path: GET /register/batch/:collegeId
+success:
+data:{
+	items:[
+		{
+			batchId,
+			batch_name
+		}
+	],
+	total
+}
+errors:
+HTTP	Code			Condition
+400	INVALID_COLLEGE_ID	invalid college id
+404	COLLEGE_ID_INVALID	college doesn't exits
+
+- getSection(batch_id)
+patch: GET /register/section/:sectionId
+success:
+data:{
+	items:[
+ 		{
+ 			batchId,
+ 			batch_name
+ 		}
+ 	],
+ 	total
+}
+errors:
+HTTP	Code			Condition
+400	INVALID_BATCH_ID	invalid college id
+404	BATCH_ID_INVALID	college doesn't exits
+
+
+- setEditableInTimeFrame(mobile,email,name)
+patch: PATCH /profile-edit
+body:{
+	mobile,
+	email,
+	name
+}
+
+success:
+data:{
+	//complete profile data
+}
+
+errors:
+
+
+
+
+Dashboard:
+- getCollegeLevelEngagement(collegeId)
+path: GET /engagement?type=college
+success:
+data:{
+	percentage,
+	type
+}
+errors:
+invalid collegeId
+
+
+- getBrachLevelEngagement(brachId)
+path: GET /engagement?type=brach
+success:
+data:{
+	percentage,
+	type
+}
+errors:
+invalid branchId
+
+- getSectionLevelEngagement(sectionId)
+path: GET /engagement?type=section
+success:
+data:{
+	percentage,
+	type
+}
+errors:
+invalid sectionId
+
+
+___________________________________________________________________________________________
+Users
+
+- getUserProfile(userId)
+path: GET /users/:userId
+
+success:
+	- data:{
+		userId,
+		username,
+		sectionId
+		profilePic,
+		knowMe,
+		friendStatus []
+	}	
+
+errors:
+HTTP	Code		 Condition
+400	INVALID_USER_ID	 userId does not match expected format
+404	USER_NOT_FOUND	 No user with this userId exists
+
+
+friendStatus 		Enum Values 
+Value		 ->	Meaning
+none		 ->	No relationship exists
+friends		 ->	Users are friends
+request_sent	 ->	Caller sent a pending request to this user
+request_received ->	This user sent a pending request to the caller
+
+
+- getALLUsers(collegeId)
+path : GET /users/:collegeId
+
+success:
+data:{
+	[
+		{
+			userId,
+			username,
+			sectionId,
+			profilePic,
+			knowMe,
+			friendStatus
+		}
+	],
+	total: int
+}
+
+errors:
+HTTP	Code			Condition
+400	INVALID_COLLEGE_ID	invalid college Id
+404 	COLLEGE_ID_NOT_FOUND	non existent college Id
+404	NO_USERS_EXSITS		no students under college Id
+
+- getFreinends() ***
+path GET /friends
+
+success:
+data:{
+	[	
+		{
+ 			userId,
+ 			username,
+ 			sectionId,
+ 			profilePic,
+ 			knowMe,
+ 			friendStatus
+ 		}
+	],
+	total:int,
+	nextCursor: null,
+    	hasMore: false
+}
+errors:
+HTTP	Code			Condition
+400	INVALID_USER_ID		userId is malformed
+403	FORBIDDEN		Authenticated user can only query their own friends list
+404	USER_NOT_FOUND		No user with this userId exists
+
+problem:
+i dont know how the logic works here can we maintain cache if yes how if now how to retrieve 
+
+have to know how this cursor logic works
+
+
+- getRequestSent()
+path: GET /users/friend-request/sent
+data: {
+    items: [
+      {
+        requestId,
+        userId,
+        username,
+        profilePic,
+        sentAt: 2026-02-20T10:00:00Z
+      }
+    ],
+    total: int,
+    nextCursor: null,
+    hasMore: false
+}
+
+errors:
+HTTP	Code			Condition
+400	INVALID_USER_ID		userId is malformed
+403	FORBIDDEN		Authenticated user can only query their own sent requests
+404	USER_NOT_FOUND		No user with this userId exists
+
+
+ - getRequestRecived()
+path: GET /users/friend-request/recived
+
+data:{
+	items: [
+      {
+        requestId,
+        userId,
+        username,
+        profilePic,
+        sentAt: 2026-02-20T10:00:00Z
+      }
+    ],
+    total: int,
+    nextCursor: null,
+    hasMore: false
+}
+
+errors:
+HTTP	Code			Condition
+400	INVALID_USER_ID		userId is malformed
+403	FORBIDDEN		Authenticated user can only query their own sent requests
+404	USER_NOT_FOUND		No user with this userId exists
+
+
+- sendRequest(userId)
+path: POST /freind-request
+body: {toUserId}
+ 
+success: status 201
+data:{
+    requestId,
+    status
+ }
+errors:
+HTTP	Code			Condition
+400	INVALID_USER_ID		toUserId is malformed
+403	CANNOT_ADD_YOURSELF	toUserId equals the caller's own userId
+404	USER_NOT_FOUND		Target user does not exist
+409	REQUEST_ALREADY_SENT	A pending request already exists between these two users (in either direction)
+409	ALREADY_FRIENDS		These users are already friends
+
+
+-acceptOrRejectRequest()
+path: PATCH /friend-requests/:requestId
+body: {action: accept/reject}
+success: 200
+data:{
+	requestId,
+	status
+}
+
+HTTP	Code			Condition
+400	INVALID_ACTION		action is not accept or reject
+403	FORBIDDEN		Caller is not the request recipient
+404	REQUEST_NOT_FOUND	No request with this requestId exists
+409	REQUEST_NOT_PENDING	Request has already been accepted or rejected
+
+- cancelRequest()
+path: DELETE /friend-requests/:requestId
+errors:
+HTTP	Code			Condition
+403	FORBIDDEN		Caller is not the request sender
+404	REQUEST_NOT_FOUND	No request with this requestId exists
+409	REQUEST_NOT_PENDING	Request has already been accepted or rejected
+
+- unfriend(userId)
+path: DELETE /friend/:friendId
+errors:
+
+HTTP	Code			Condition
+400	INVALID_USER_ID		friendId is malformed
+404	NOT_FRIENDS		These users are not currently friends
+
+
+Camera
+
+
+- sendSign(userId)
+path: POST /signatures/:userId
+body:{
+	anonymous,
+	id,
+	graphic,
+	quote,
+	message,
+	author
+}
+success:
+data:{
+	singId
+}
+errors:
+HTTP	Code		Condition
+400	INVALID_USER_ID	Recipient userId is malformed
+400	INVALID_FORMAT	graphic is not a valid base64 image or unsupported MIME type
+400	FILE_TOO_LARGE	Decoded image exceeds 2 MB
+400	FIELD_TOO_LONG	quote or message exceeds character limit
+400	AUTHOR_REQUIRED	anonymous is false but author is missing
+403	AUTHOR_MISMATCH	author does not match the authenticated caller
+404	USER_NOT_FOUND	Recipient user does not exist
+500	SEND_FAILED	Server failed to deliver the signature
+
+
+5. Public/Private Switch Module
+
+- setVisibility(mode)
+path: PATCH /users/:mode
+body:{mode:[friends_only,non_anonymous, anonymous]}
+success:
+data:{
+	mode,
+}
+erorrs:
+HTTP	Code			Condition
+400	INVALID_USER_ID		userId is malformed
+400	INVALID_MODE		mode is not one of the accepted enum values
+403	FORBIDDEN		Caller is not the owner of this userId
+404	USER_NOT_FOUND		No user with this userId exists
+
+6. T-Shirt Voting Module
+
+- vote(userId)
+path: PATCH /t-shirt/vote/:userId
+
+success:
+data:{
+	voatedFor:userId
+}
+
+errors:
+HTTP	Code			Condition
+400	INVALID_USER_ID		userId is malformed
+403	VOTING_CLOSED		Request received outside the active voting window
+403	CANNOT_VOTE_SELF	Caller is attempting to vote for their own image
+404	USER_NOT_FOUND		No user with this userId exists
+404	IMAGE_NOT_FOUND		Target user has not submitted a class image
+409	ALREADY_VOTED		Caller has already cast their vote
+500	VOTE_FAILED		Server failed to record the vote
+
+- submitImage(image)
+path : POST /t-shirt/vote
+body: {classImage}
+data:{
+	url,
+	votedFor:userId
+}
+
+errors:
+HTTP	Code			Condition
+400	INVALID_USER_ID		Caller's user ID is invalid (derived from auth token)
+400	INVALID_FORMAT		Image is not image/png or image/jpeg
+400	FILE_TOO_LARGE		Image exceeds 5 MB
+400	INVALID_ASPECT_RATIO	Image is not square (1:1 ± 5%)
+403	VOTING_CLOSED		Request received outside the active voting window
+500	UPLOAD_FAILED		Server failed to store the image
+
+- classImages(sectionId)
+path: GET /t-shirt/pics/:sectionId
+
+*** did not understand ***
+Parameter		Type	Default	Description
+limit	integer		20	Max 100.
+cursor	string		null	Pagination cursor.
+
+success:
+data:{
+	items:[
+		{
+			imageUrl,
+			author,
+			voteCount,
+			submittedAt
+		}
+	],
+	total:30,
+	"nextCursor": "eyJ...", //didn't understand
+    	"hasMore": true		//didn't understand
+}
+
+errors:
+HTTP	Code			Condition
+400	INVALID_SECTION_ID	sectionId is malformed
+404	SECTION_NOT_FOUND	No section with this sectionId exists
+
+
+- getFinalClassImage(sectionId)
+path: GET /t-shirt/final-pic/:sectionId
+success: 
+data:{
+	data:{
+		imageURL,
+		author,
+		finalizedAt
+	}
+}
+
+errors:
+HTTP	Code			Condition
+400	INVALID_SECTION_ID	sectionId is malformed
+404	SECTION_NOT_FOUND	No section with this sectionId exists
+404	NO_FINAL_IMAGE		Voting is still open or no image has been finalised for this section
+
+
+7. Create SlamBook
+- getSignList()
+path: GET /slam-book
+note: dont know if idea can be implemented or not if need will be implemented 
+
+success:
+data:{
+	items:[
+		{
+			type:[anonymous | non-anonymous | friends-only],
+			signImageURL,
+			quote,
+			message,
+			author,
+			status:[isFriend,notFriend]
+		}
+	],
+	total:int
+}
+
+errors:
+- invalid user 
+- user doesn't exist
+
+
+
+- setInBook(signId)
+path: PATCH /slam-book/create-book/:signId
+
+success:
+message successfully saved in book 
+
+errors:
+- doesn't belong to user 
+
+- setBulkInBook([signId])
+path: PATCH/POST (dont know which to use) /slam-book/create-book/bulk
+
+success:
+data:{
+	itemsSaved:[singIds,...]
+	itemsNotSaved:[{
+			singId,
+			reason,
+		}
+	]
+}
+
+error:
+- doesn't belong to user 
+- all sings not selected 
+
+
+
+- getSlamBookPreView(userId)
+path: GET: /slam-book/order-book/preview 
+success:
+data:{
+	slamBookPreviewPDF
+}
+
+errors:
+
+
+
+- orderBook(userId,paymentId,pdf)
+path: POST: /slam-book/order-book
+
+success:
+data:{
+	slambookId,
+	previewPDF
+}
+
+error:
+- invalid paymentId
+- can order more than once 
+
+
+8. Personal t-shirt
+- getSignList() //same as slam-book
+
+- getNFT(pdf)
+path: GET /personal-t-shirt/nft
+success:
+data:{
+	nft //image
+}
+
+errors:
+- t-shirt not created yet
+
+- saveProgres()
+path: POST /personal-t-shirt
+body:{
+	graficPDF
+}
+success: 200 progress saved
+errors:
+invalid file format 
+more that 2 pages 
+invalid file
+
+-orderPersonalTShirt(paymentId,pdf)
+path: POST /personal-t-shirt/order
+body:{
+	paymentId
+}
+success:
+data:{
+	status
+}
+errors:
+- can order more than once 
+- invalid paymentId
+
+9. Orders
+
+- getMainTShirtStatus()
+path: /orders/main-t-shirt
+success: 
+data:{status}
+errors:
+- didn't order yet
+
+- getSlamBookStatus()
+success:
+data:{status}
+errors:
+- didn't order yet
+
+- getPersonalTShirt()
+success:
+data:{status}
+errors:
+- didn't order yet
+
+___________________________________________________________________________________________
+Code			HTTP	Description
+INVALID_USER_ID		400	userId / friendId / toUserId is malformed
+INVALID_SECTION_ID	400	sectionId is malformed
+INVALID_ACTION		400	action field has an unrecognised value
+INVALID_MODE		400	mode field has an unrecognised value
+INVALID_FORMAT		400	Uploaded media is not a supported format
+INVALID_QUERY		400	Search query is unsafe or exceeds limits
+INVALID_ASPECT_RATIO	400	Uploaded image does not meet the required ratio
+FILE_TOO_LARGE		400	Uploaded file exceeds the size limit
+FIELD_TOO_LONG		400	A text field exceeds its character limit
+AUTHOR_REQUIRED		400	Non-anonymous request is missing author
+AUTHOR_MISMATCH		403	author does not match authenticated caller
+FORBIDDEN		403	Caller lacks permission for this action
+CANNOT_ADD_YOURSELF	403	Cannot send a friend request to yourself
+CANNOT_VOTE_SELF	403	Cannot vote for your own image
+VOTING_CLOSED		403	The voting window is not currently active
+USER_NOT_FOUND		404	No user with the given ID exists
+SECTION_NOT_FOUND	404	No section with the given ID exists
+REQUEST_NOT_FOUND	404	No friend request with the given ID exists
+IMAGE_NOT_FOUND		404	Target user has not submitted an image
+NOT_FRIENDS		404	The two users are not currently friends
+NO_FINAL_IMAGE		404	No winning image has been finalised yet
+REQUEST_ALREADY_SENT	409	A pending request already exists
+ALREADY_FRIENDS		409	The two users are already friends
+REQUEST_NOT_PENDING	409	Request has already been accepted or rejected
+ALREADY_VOTED		409	Caller has already voted
+SEND_FAILED		500	Signature delivery failed
+UPLOAD_FAILED		500	File storage failed
+VOTE_FAILED		500	Vote recording failed

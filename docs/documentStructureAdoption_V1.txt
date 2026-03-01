@@ -1,0 +1,57 @@
+src/
+│
+├── app.js
+├── server.js
+│
+├── config/
+│   ├── env.js
+│   ├── database.js
+│   └── redis.js
+│
+├── shared/
+│   ├── middleware/
+│   │   ├── auth.middleware.js
+│   │   ├── error.middleware.js
+│   │   └── validate.middleware.js
+│   │
+│   ├── utils/
+│   │   ├── pagination.js
+│   │   ├── response.js
+│   │   └── logger.js
+│   │
+│   ├── constants/
+│   │   ├── errorCodes.js
+│   │   └── enums.js
+│   │
+│   └── types/
+│       └── common.types.js
+│
+├── modules/
+│   │
+│   ├── users/
+│   │   ├── users.controller.js
+│   │   ├── users.service.js
+│   │   ├── users.repository.js
+│   │   ├── users.routes.js
+│   │   ├── users.validation.js
+│   │   └── users.types.js
+│   │
+│   ├── friends/
+│   │   ├── friends.controller.js
+│   │   ├── friends.service.js
+│   │   ├── friends.repository.js
+│   │   ├── friends.routes.js
+│   │   ├── friends.validation.js
+│   │   └── friends.types.js
+│   │
+│   ├── signatures/
+│   ├── voting/
+│   ├── slambook/
+│   ├── orders/
+│   │
+│   └── index.js   // module aggregator
+│
+└── database/
+    ├── migrations/
+    ├── seeds/
+    └── schema.sql

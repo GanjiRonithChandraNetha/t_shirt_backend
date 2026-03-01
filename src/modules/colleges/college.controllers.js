@@ -1,7 +1,8 @@
 import {
     getCollegesService,
     getBranchesService,
-    getSectionsService
+    getSectionsService,
+    getCollegeStatsService
 } from "./college.service.js";
 
 import { asyncHandler } from "../../shared/utils/asyncHandler.js";
