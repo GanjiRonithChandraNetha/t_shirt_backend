@@ -1,0 +1,27 @@
+export const smtpHelper = [
+    {
+        user:process.env.MAIL_1_USER,
+        pass:process.env.MAIL_1_PASS,
+        sentToday:0
+    },
+    {
+        user:process.env.MAIL_2_USER,
+        pass:process.env.MAIL_2_PASS,
+        sentToday:0
+    },
+    {
+        user:process.env.MAIL_3_USER,
+        pass:process.env.MAIL_3_PASS,
+        sentToday:0
+    },
+    {
+        user:process.env.MAIL_4_USER,
+        pass:process.env.MAIL_4_PASS,
+        sentToday:0
+    },
+    {
+        user:process.env.MAIL_5_USER,
+        pass:process.env.MAIL_5_PASS,
+        sentToday:0
+    }
+];

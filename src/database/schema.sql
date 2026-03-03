@@ -41,7 +41,9 @@ CREATE TABLE users (
     -- FIX #17: soft delete instead of hard delete
     deleted_at  TIMESTAMPTZ,
 
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    reset_token VARCHAR(255),
+    reset_token_expires TIMESTAMPTZ
 );
 
 -- =====================================================

@@ -1,0 +1,32 @@
+- create a validator for user_details
+- add 5 mails G
+- OAunth
+
+
+- reset password
+- payment order t-shirt (very hard) delay
+- getProfile 
+- login
+- setKnowMe
+
+- getALLUsersInCollege // doubt
+
+- searchUser (hard)
+
+- getFriends
+- getRequestSent (hard)
+- getRequestRecived (hard)
+- sendRequest (hard)
+- acceptOrRejectRequest
+- cancelRequest (hard)
+- unfriend (hard)
+
+- sendSign
+- setVisibility
+
+- vote
+- submitVoteImage
+- classImages (hard)
+- getFinalClassImage (hard)
+
+- validators (very hard)
