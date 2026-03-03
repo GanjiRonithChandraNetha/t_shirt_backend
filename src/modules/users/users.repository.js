@@ -1,6 +1,14 @@
 import { pool } from '../../database/connection.js';
 import AppError from '../../shared/utils/AppError.js';
 
+
+export const findUserRepository = async(email,mobile_no)=>{
+    return await pg.query(
+        "SELECT user_id FROM users WHERE email=$1 OR mobile_no",
+        [email,mobile_no]
+    );
+}
+
 export const userRegistrationRepository = async({
     name,
     section_id,
@@ -96,7 +104,7 @@ export const updateUserPassword = async(user_id,password)=>{
 
 export const loginRespository = async(email)=>{
     return await pool.query(
-        "SELECT user_id,password FROM users WHERE email = $1",
+        "SELECT user_id,password,section_id FROM users WHERE email = $1",
         [email]
     );
 }
@@ -112,5 +120,29 @@ export const setKnowMeRepository = async(user_id,know_me)=>{
     return await pool.query(
         "UPDATE user SET know_me = $1 WHERE user_id = $2",
         [know_me,user_id]
+    );
+}
+
+
+export const getAllUsersInCollegeRepository = async(section_id)=>{
+    return await pool.query(`SELECT 
+            u.user_id,
+            b.branch_name,
+            s.section_name,
+            u.name,
+            u.know_me,
+            u.profile_pic
+        FROM users u
+        JOIN sections s ON u.section_id = s.section_id
+        JOIN branches b ON s.branch_id = b.branch_id
+        JOIN colleges c ON b.college_id = c.college_id
+        WHERE c.college_id = (
+            SELECT c2.college_id
+            FROM sections s2
+            JOIN branches b2 ON s2.branch_id = b2.branch_id
+            JOIN colleges c2 ON b2.college_id = c2.college_id
+            WHERE s2.section_id = $1
+        );`,
+        [section_id]
     );
 }

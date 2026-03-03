@@ -3,15 +3,15 @@
 - OAunth
 
 
-- reset password
-- payment order t-shirt (very hard) delay
-- getProfile 
-- login
-- setKnowMe
+- reset password                            ✓
+- payment order t-shirt (very hard) delay   ✖
+- getProfile                                ✓
+- login                                     ✓
+- setKnowMe                                 ✓
 
-- getALLUsersInCollege // doubt
+- getALLUsersInCollege // doubt             ✓
 
-- searchUser (hard)
+- searchUser (hard)                         ✖
 
 - getFriends
 - getRequestSent (hard)

@@ -1,14 +1,19 @@
 import AppError from '../../shared/utils/AppError.js';
 import crypto from 'crypto';
 import {
+    findUserRepository,
     userRegistrationRepository,
     setProfliePicRepository,
-    forgotPasswordRequestRepository,
     setPreRegistrationDetailsRepository,
+    forgotPasswordRequestRepository,
+    getUserResetToken,
+    updateUserPassword,
     loginRespository,
     getProfileRepository,
-    setKnowMeRepository
+    setKnowMeRepository,
+    getAllUsersInCollegeRepository
 } from './users.repository.js'
+
 import bcrypt from 'bcrypt';
 import { emailQueue } from '../../shared/utils/queues.js';
 import { ERROR_CODES } from '../../shared/constants/errorCodes.js';
@@ -19,6 +24,16 @@ const salt = Number(process.env.SALT_ROUNDS) || 10;
 const SECRET = process.env.JWT_SECRET;
 
 export const userRegistrationService = async(payment_id,details)=>{
+
+    const {email,mobile_no} = details;
+    const result = await findUserRepository(mobile_no,email);
+    if(result.rowCount >= 1)
+        throw new AppError(
+            "USER_ALREADY EXISTS",
+            "email or mobile nuber already exits please use diffrent email/mobile number",
+            400
+        );
+    
     const hashedPassword = await bcrypt.hash(details.password,salt);
     const userData = { ...details, password: hashedPassword };
     const user_details_obtained  = await userRegistrationRepository(userData);
@@ -115,6 +130,7 @@ export const loginService = async(email,password)=>{
             ERROR_CODES.INVALID_USER_ID.statusCode
         );
     }
+    const {user_id,section_id} = result.rows[0];
     const isMatch = await bcrypt.compare(password,result.rows[0].password);
     if(!isMatch){
         throw new AppError(
@@ -123,7 +139,7 @@ export const loginService = async(email,password)=>{
             400
         );
     }
-    const token = jwt.sign({user_id,email,role:"user"},SECRET,{expiresIn:"1d"});    
+    const token = jwt.sign({user_id,email,section_id,role:"user"},SECRET,{expiresIn:"1d"});    
     return {user_id,email,token}
 }
 
@@ -147,4 +163,15 @@ export const setKnowMeService = async(user_id,know_me)=>{
             "could not update know me",
             500
         );
+}
+
+export const getAllUsersInCollegeService = async(section_id)=>{  
+    const result = await getAllUsersInCollegeRepository(college_id);
+     if(!result)
+        throw new AppError(
+            "INVALID_USER_ID",
+            ERROR_CODES.INVALID_USER_ID.message,
+            ERROR_CODES.INVALID_USER_ID.statusCode
+        );
+    return result;
 }
