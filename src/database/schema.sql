@@ -253,7 +253,8 @@ CREATE TABLE signatures (
     media_file   TEXT,
     -- slam_book_id BIGINT,
     in_book      BOOLEAN            DEFAULT FALSE NOT NULL,
-    signed_at    TIMESTAMPTZ        DEFAULT CURRENT_TIMESTAMP,
+    signed_at    TIMESTAMPTZ        NOT NULL CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMPTZ,
     viewed       BOOLEAN            NOT NULL DEFAULT FALSE,
 
     CONSTRAINT fk_signatures_user

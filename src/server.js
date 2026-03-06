@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import './scheduler/schedular.js'
 import app from "./app.js";
 // dotenv.config();
 

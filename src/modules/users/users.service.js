@@ -18,7 +18,6 @@ import bcrypt from 'bcrypt';
 import { emailQueue } from '../../shared/utils/queues.js';
 import { ERROR_CODES } from '../../shared/constants/errorCodes.js';
 import jwt from 'jsonwebtoken';
-import { asyncHandler } from '../../shared/utils/asyncHandler.js';
 
 const salt = Number(process.env.SALT_ROUNDS) || 10;
 const SECRET = process.env.JWT_SECRET;
@@ -174,4 +173,21 @@ export const getAllUsersInCollegeService = async(section_id)=>{
             ERROR_CODES.INVALID_USER_ID.statusCode
         );
     return result;
+}
+
+export const setVisibilityService = async(user_id,mode)=>{
+    if(!['anonymous','non_anonymous','friends_only'].includes(mode))
+        throw new AppError(
+            "INVALID_MODE_TYPE",
+            "invalid mode has been sent any of these should be sent 'anonymous','non_anonymous','friends_only'",
+            400
+        );
+    
+    const result = await setVisibilityRepository(user_id,mode);
+    if(result.rowCount === 0)
+        throw new AppError(
+            "MODE_NOT_SET",
+            "unable to set mode please try again",
+            500
+        );
 }

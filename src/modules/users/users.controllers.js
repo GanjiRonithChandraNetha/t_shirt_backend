@@ -10,7 +10,8 @@ import {
     resetPasswordService,
     loginService,
     getProfileService,
-    setKnowMeService
+    setKnowMeService,
+    getAllUsersInCollegeService
  } from "./users.service.js";
 import bcrypt from 'bcrypt';
 import { responseDataAggregator } from "../../shared/utils/responseDataAggregator.js";
@@ -184,5 +185,16 @@ export const getAllUsersInCollegeController = asyncHandler(async(req,res)=>{
         data:result
     });
     
+    res.status(200).json(obj);
+})
+
+export const setVisibilityController = asyncHandler(async(req,res)=>{
+    const user_id = req.user.user_id;
+    const mode = req.params.mode;
+    const result = await setVisibilityService(user_id,mode);
+    const obj = responseDataAggregator(req,{
+        success:true,
+        mode: result.mode
+    });
     res.status(200).json(obj);
 })

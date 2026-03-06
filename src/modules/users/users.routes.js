@@ -9,9 +9,10 @@ import {
     loginController,
     getProfileController,
     setKnowMeController,
-    getAllUsersInCollegeController
+    getAllUsersInCollegeController,
+    setVisibilityController
 } from './users.controllers.js'
-import { upload } from "../../shared/middleware/multer.middleware.js";
+import { profilePicUpload } from "../../shared/middleware/multer.middleware.js";
 import { jwtChecker } from "../../shared/middleware/jwtChecker.js";
 
 const router = Route();
@@ -22,10 +23,11 @@ router.post('/auth/forgot-password',forgotPasswordLimiter,forgotPasswordRequestC
 router.post('/auth/reset-password',resetPasswordController);
 router.post('/auth/login',loginController);
 
-router.patch('/user/profile-pic',jwtChecker,upload.single('profile_pic'),setProfliePicController);
+router.patch('/user/profile-pic',jwtChecker,profilePicUpload.single('profile_pic'),setProfliePicController);
 router.post('/user',jwtChecker,setPreRegistrationDetailsController);
 router.get('/user/:user_id',jwtChecker,getProfileController);
 router.patch('/user/know-me',jwtChecker,setKnowMeController);
 router.get('/users',jwtChecker,getAllUsersInCollegeController);
+router.patch('/users/mode/:mode',setVisibilityController);
 
 export default router;

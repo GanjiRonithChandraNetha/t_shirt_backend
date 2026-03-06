@@ -8,21 +8,24 @@
 - getProfile                                ✓
 - login                                     ✓
 - setKnowMe                                 ✓
+- setVisibility                             ✓
+
 
 - getALLUsersInCollege // doubt             ✓
 
 - searchUser (hard)                         ✖
 
-- getFriends
-- getRequestSent (hard)
-- getRequestRecived (hard)
-- sendRequest (hard)
-- acceptOrRejectRequest
-- cancelRequest (hard)
-- unfriend (hard)
+- getFriends                -> only ids     ✓
+- getRequestSent (hard)     -> only ids     ✓
+- getRequestReceived (hard) -> only ids     ✓
+- sendRequest (very-hard)   -> status       ✓  (used upsert psql)
+- acceptOrRejectRequest                     ✓    
+- cancelRequest (hard)                      ✓
+- unfriend (hard)                           ✓
 
-- sendSign
-- setVisibility
+- sendSign                                  ✓
+- getAllSigns                               ✓
+- deleteAnonymousSign                       ✓
 
 - vote
 - submitVoteImage
@@ -30,3 +33,9 @@
 - getFinalClassImage (hard)
 
 - validators (very hard)
+
+
+- sendRequest (hard) 
+note:will send all ready friend if non-existent user_id is sent so we will 
+have to check if user_id id even exists if it does then send friend exits 
+else user_id doent exists

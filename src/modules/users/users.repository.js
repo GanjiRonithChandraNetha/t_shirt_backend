@@ -3,8 +3,8 @@ import AppError from '../../shared/utils/AppError.js';
 
 
 export const findUserRepository = async(email,mobile_no)=>{
-    return await pg.query(
-        "SELECT user_id FROM users WHERE email=$1 OR mobile_no",
+    return await pool.query(
+        "SELECT user_id FROM users WHERE email=$1 OR mobile_no=$2",
         [email,mobile_no]
     );
 }
@@ -17,15 +17,15 @@ export const userRegistrationRepository = async({
     size
 })=>{
     const user_data = await pool.query(`
-            INSERT INTO TABLE users (section_id,mobile_no,email,name,size) 
+            INSERT INTO users (section_id,mobile_no,email,name,size) 
             VALUES ($1,$2,$3,$4,$5)
             RETURNING user_id,section_id,mobile_no,email,name,size;
-        `,[name,section_id,mobile_no,email,size]); 
+        `,[section_id,mobile_no,email,name,size]); 
 
     return user_data.rows[0];
 }
 
-export const setProfliePicRepository = async(filePath)=>{
+export const setProfliePicRepository = async(filePath,user_id)=>{
     const result = await pool.query(`
             UPDATE users SET profile_pic = $1 WHERE user_id = $2 RETURNING profile_pic;
         `,[filePath,user_id]
@@ -55,7 +55,7 @@ export const setPreRegistrationDetailsRepository = async(
             email = $4,
             size = $5
         WHERE user_id = $6
-        RETURING name,section_id,mobile_no,email,size,user_id
+        RETURNING name,section_id,mobile_no,email,size,user_id
         `,[name,section_id,mobile_no,email,size,user_id]
     );
     if(result.rows.length == 0) throw new AppError(
@@ -87,7 +87,8 @@ export const forgotPasswordRequestRepository = async({token,expires,email})=>{
 
 export const getUserResetToken = async(user_id)=>{
     const result = await pool.query(
-        "SELECT reset_token, reset_token_expires FROM users WHERE user_id = $1"
+        "SELECT reset_token, reset_token_expires FROM users WHERE user_id = $1",
+        [user_id]
     );
 
     return result.rows;
@@ -111,14 +112,14 @@ export const loginRespository = async(email)=>{
 
 export const getProfileRepository = async(user_id)=>{
     return await pool.query(
-        "SELECT name,profile_pic,visibility,know_me FROM users WHERE user_id = $1",
+        "SELECT name,profile_pic,visibility,know_me,visibility FROM users WHERE user_id = $1",
         [user_id]
     );
 }
 
 export const setKnowMeRepository = async(user_id,know_me)=>{
     return await pool.query(
-        "UPDATE user SET know_me = $1 WHERE user_id = $2",
+        "UPDATE users SET know_me = $1 WHERE user_id = $2",
         [know_me,user_id]
     );
 }
@@ -144,5 +145,12 @@ export const getAllUsersInCollegeRepository = async(section_id)=>{
             WHERE s2.section_id = $1
         );`,
         [section_id]
+    );
+}
+
+export const setVisibilityRepository = async(user_id,mode)=>{
+    return await pool.query(
+        `UPDATE users SET visibiltiy=$1 WHERE user_id=$2`,
+        [mode,user_id]
     );
 }
