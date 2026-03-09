@@ -6,7 +6,7 @@ import crypto from 'crypto';
 
 const profilePicStorage = multer.diskStorage({
     destination:(req,file,cb)=>{
-        cb(null,'../../../images/profilePic');
+        cb(null,path.join(process.cwd(),"images","profilePic"));
     },
     filename:(req,file,cb)=>{
         const ext = path.extname(file.originalname);
@@ -67,7 +67,7 @@ export const stikerUpload = multer({
 
 const voteImageStorage = multer.diskStorage({
     destination:(req,file,cb)=>{
-        cb(null,'../../../images/voteImages');
+        cb(null,path.join(process.cwd(),"images","voteImages"));
     },
     filename:(req,file,cb)=>{
         const ext = path.extname(file.originalname);

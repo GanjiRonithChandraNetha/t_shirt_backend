@@ -1,3 +1,6 @@
+import 'dotenv/config';
+console.log(process.env.MAIL_1_USER)
+
 export const smtpHelper = [
     {
         user:process.env.MAIL_1_USER,

@@ -54,6 +54,7 @@ export const setProfliePicService = async(filePath,user_id)=>{
         "could not save the file in db",
         500
     );
+    return fileURL;
 }
 
 export const setPreRegistrationDetailsService = async(details,user_id)=>{
@@ -67,7 +68,7 @@ export const setPreRegistrationDetailsService = async(details,user_id)=>{
     return result;
 }
 
-export const forgotPasswordRequestService = async({email})=>{
+export const forgotPasswordRequestService = async(email)=>{
     const token = crypto.randomBytes(32).toString('hex');
     const expires = new Date(Date.now() + (1000 * 60 * 60 * 3)); // expires in 3hrs
     console.log(expires);
@@ -80,7 +81,7 @@ export const forgotPasswordRequestService = async({email})=>{
         {
             to:email,
             subject:"reset password",
-            token:result.token,
+            token:result.reset_token,
             user_id:result.user_id
         },
         {
@@ -97,6 +98,7 @@ export const forgotPasswordRequestService = async({email})=>{
 
 export const resetPasswordService = async(token,password,user_id)=>{
     const result1 = await getUserResetToken(user_id);
+    console.log(result1);
     const {reset_token,resent_token_expires} = result1.rows[0];
     const expires = new Date(resent_token_expires);
     
@@ -151,8 +153,8 @@ export const loginService = async(email,password)=>{
 }
 
 
-export const getProfileService = async(user_id)=>{
-    const result = await getProfileRepository(user_id);
+export const getProfileService = async(user_id,self)=>{
+    const result = await getProfileRepository(user_id,self);
     if(! result.rows.length)
         throw new AppError(
             "INVALID_USER_ID",
@@ -170,6 +172,7 @@ export const setKnowMeService = async(user_id,know_me)=>{
             "could not update know me",
             500
         );
+    return result.rows[0];
 }
 
 export const getAllUsersInCollegeService = async(section_id)=>{  

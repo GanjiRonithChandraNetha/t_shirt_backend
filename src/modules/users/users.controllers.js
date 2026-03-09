@@ -89,8 +89,9 @@ export const setProfliePicController = asyncHandler(async(req,res)=>{
         "file not found",
         404
     );
-
-    const fileURL = await setProfliePicService(req.path,req.user.user_id);
+    // console.log(req.file);
+    // console.log(req.file.path);
+    const fileURL = await setProfliePicService(req.file.path,req.user.user_id);
 
     const obj = responseDataAggregator(req,{
         success:true,
@@ -131,10 +132,10 @@ export const setPreRegistrationDetailsController = asyncHandler(async(req,res)=>
 
 // public 
 export const forgotPasswordRequestController = asyncHandler(async(req,res)=>{
-    const email = req.body;
+    const email = req.body.email;
     // validate email
     console.log(email,typeof(email));
-    const zodResult = forgotPasswordValidator.safeParse(email);
+    const zodResult = forgotPasswordValidator.safeParse({email});
     if(!zodResult.success)
         throw new AppError(
             "INVALID_EMAIL",
@@ -154,13 +155,14 @@ export const forgotPasswordRequestController = asyncHandler(async(req,res)=>{
 //post method
 export const resetPasswordController = asyncHandler(async(req,res)=>{
     const {token,user_id} = req.query;
-    const password = req.body;
+    const password = req.body.password;
+    console.log(token,user_id);
     //validate password
     const zodResult = resetPasswordValidator.safeParse({password});
     if(!zodResult.success)
         throw new AppError(
             "INVALID_PASSWORD_FORMAT",
-            "please create password with valid password format",
+            zodResult.error.flatten().fieldErrors,
             400
         );
     
@@ -209,9 +211,9 @@ export const getProfileController = asyncHandler(async(req,res)=>{
             400
         );
     else if(user_id == "self")
-        user_data = await getProfileService(req.user.user_id);   
+        user_data = await getProfileService(req.user.user_id,true);   
     else
-        user_data = await getProfileService(user_id);
+        user_data = await getProfileService(user_id,false);
     
     // console.log(user_data);
 
@@ -237,7 +239,8 @@ export const setKnowMeController = asyncHandler(async(req,res)=>{
     
     const obj = responseDataAggregator(req,{
         success:true,
-        message:"know_me update succesfully"
+        message:"know_me update succesfully",
+        data:result
     });
     
     res.status(200).json(obj);

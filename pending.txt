@@ -42,7 +42,8 @@ else user_id doent exists
 
 
 Testing 
-- forgot password
+- forgot password                       
 - reset password
-- setProfilePic
-- setPreRegistrationDetailsController
+- setProfilePic                         ✓
+- setPreRegistrationDetailsController   ✖
+- setKnowMe                             ✓

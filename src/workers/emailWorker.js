@@ -1,27 +1,37 @@
+import 'dotenv/config';
+console.log(process.env.MAIL_1_USER);
 import { emailQueue } from "../shared/utils/queues.js";
 import { getTransporter } from "../shared/utils/mail.transporter.js";
 import { redisEmailLogger } from "../shared/utils/loggers.js";
 
 console.log("worker is on the job")
 
-emailQueue.process(10, async (job) => {
-    const {subject , email , token , user_id} = job.data;
+emailQueue.process('send-email',10, async (job) => {
+    console.log(job.data);
+    const {subject , to , token , user_id} = job.data;
     const {transporter,account} = getTransporter();
-    const html = `click <a href="http://localhost:3000/users/reset-password?token=${token}&user_id=${user_id}>here </a> to reset your password`
-    try{
-        await transporter.sendMail({
+    const html = `click <a href="http://localhost:3000/auth/reset-password?token=${token}&user_id=${user_id}>here </a> to reset your password`
+    // console.log("subject: "+subject,"\ntoken: "+token,"\nuser_id: "+user_id,"\naccount: "+account);
+    console.log({
             from:account.user,
-            to:email,
+            to:to,
             subject:subject,
             html
         });
-        redisEmailLogger.info("email sent ,from:"+account.user+" ,to"+email);
+    try{
+        await transporter.sendMail({
+            from:account.user,
+            to:to,
+            subject:subject,
+            html
+        });
+        redisEmailLogger.info("email sent ,from:"+account.user+" ,to"+to);
     } catch(err){
         console.log("reset password not sent");
-        redisEmailLogger.fatal("from:"+account.user+" ,to"+email+",Error:"+err.message);
+        redisEmailLogger.fatal("from:"+account.user+" ,to"+to+",Error:"+err.message);
         redisEmailLogger.error({
             from: account.user,
-            to: email,
+            to: to,
             err
         }, "Email sending failed");
         throw err;
