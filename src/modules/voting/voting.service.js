@@ -1,5 +1,5 @@
 import AppError from '../../shared/utils/AppError.js'
-import ERROR_CODES from '../../shared/constants/errorCodes.js'
+import {ERROR_CODES} from '../../shared/constants/errorCodes.js'
 import { 
     voteRepository,
     classImagesRepository,
@@ -7,6 +7,7 @@ import {
     finalClassImageRepository,
     finalizeClassImageForeEverySectionRepository
  } from './voting.repository.js';
+import { impDates } from '../../shared/constants/dates.js';
 
 
 export const voteService = async(user_id,candidate_id)=>{
@@ -54,11 +55,19 @@ export const finalClassImageService = async(section_id)=>{
 }
 
 export const finalizeClassImageForeEverySectionService = async()=>{
+    if(Date.now() < impDates.VOTING_END_DATE)
+        return {
+            success:false,
+            data:"voting has not bean completed yet"
+        };
     const result = await finalizeClassImageForeEverySectionRepository();
     if(result.rows.length == 0){
         console.log("sections images not set internal server error check the query ");
         console.log(result);
         return null;
     }
-    return result.rows;
+    return {
+        success:true,
+        data:result.rows
+    };
 } 

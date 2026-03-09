@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { getValidMail } from './getValidMain';
+import { getValidMail } from './getValidMain.js';
 
 
 export const getTransporter = ()=>{
@@ -11,7 +11,9 @@ export const getTransporter = ()=>{
     );
 
     const transporter = nodemailer.createTransport({
-        host:'gmail',
+        host:'smtp.gmail.com',
+        port:587,
+        secure:true,
         auth:{
             user:account.user,
             pass:account.pass

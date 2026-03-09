@@ -1,4 +1,4 @@
-import { Route } from "express";
+import { Router } from "express";
 import { 
     getFriendsController,
     getPendingRequestRecievedController,
@@ -7,17 +7,17 @@ import {
     acceptOrRejectRequestController,
     cancelRequestController,
     unfriendController
-} from "./friends.controller";
+} from "./friends.controller.js";
 
-const router = Route();
+const router = Router();
 
-router.get('/friends',getFriendsController);
-router.get('/friends/pending-request-sent',getPendingRequestSentController);
-router.get('/friends/pending-request-recived',getPendingRequestRecievedController)
-router.post('/frineds/:friend_id',sendRequestController);
-router.patch('/friends/pending-request-recived/respond',acceptOrRejectRequestController);
-router.patch('/friends/pending-request-sent/cancel',cancelRequestController);
-router.patch('/friends/un-friend',unfriendController);
+router.get('/',getFriendsController);
+router.get('/pending-request-sent',getPendingRequestSentController);
+router.get('/pending-request-recived',getPendingRequestRecievedController)
+router.post('/:friend_id',sendRequestController);
+router.patch('/pending-request-recived/respond',acceptOrRejectRequestController);
+router.patch('/pending-request-sent/cancel',cancelRequestController);
+router.patch('/un-friend',unfriendController);
 
 
 export default router;

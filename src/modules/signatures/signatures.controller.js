@@ -1,5 +1,5 @@
 import AppError from '../../shared/utils/AppError.js';
-import asyncHandler from '../../shared/utils/asyncHandler.js';
+import {asyncHandler} from '../../shared/utils/asyncHandler.js';
 import { signDataValidator } from './signatures.validators.js';
 import { 
     sendSignServer,
@@ -11,7 +11,10 @@ import { responseDataAggregator } from "../../shared/utils/responseDataAggregato
 
 
 export const sendSignController = asyncHandler(async(req,res)=>{
-    const signData = req.body.signData;
+    console.log("HELLO");
+    console.log(req.file);
+    console.log(req.body);
+    const signData = req.body;
     const user_id = req.user.user_id;
     const reciver_id = req.body.reciver_id;
     if(!signData.quote )
@@ -20,11 +23,13 @@ export const sendSignController = asyncHandler(async(req,res)=>{
             "sign data is incomplete please send proper data",
             400
         );
-
+    console.log(signData);
+    console.log(process.cwd());
     signData.quote = signData.quote.trim();
     signData.message = (!signData.message)?null:signData.message.trim();
     signData.sticker = (!req.file)?null:req.file.path;
     
+    console.log(signData);
     const zodResult = signDataValidator.safeParse(signData);
     if(!zodResult.success)
         throw new AppError(

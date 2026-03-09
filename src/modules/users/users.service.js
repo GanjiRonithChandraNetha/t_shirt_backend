@@ -11,21 +11,22 @@ import {
     loginRespository,
     getProfileRepository,
     setKnowMeRepository,
-    getAllUsersInCollegeRepository
+    getAllUsersInCollegeRepository,
+    setVisibilityRepository
 } from './users.repository.js'
 
 import bcrypt from 'bcrypt';
 import { emailQueue } from '../../shared/utils/queues.js';
 import { ERROR_CODES } from '../../shared/constants/errorCodes.js';
 import jwt from 'jsonwebtoken';
+import { type } from 'os';
 
 const salt = Number(process.env.SALT_ROUNDS) || 10;
 const SECRET = process.env.JWT_SECRET;
-
 export const userRegistrationService = async(payment_id,details)=>{
-
+    // console.log(details);
     const {email,mobile_no} = details;
-    const result = await findUserRepository(mobile_no,email);
+    const result = await findUserRepository({mobile_no,email});
     if(result.rowCount >= 1)
         throw new AppError(
             "USER_ALREADY EXISTS",
@@ -34,7 +35,7 @@ export const userRegistrationService = async(payment_id,details)=>{
         );
     
     const hashedPassword = await bcrypt.hash(details.password,salt);
-    const userData = { ...details, password: hashedPassword };
+    const userData = { ...details, password: hashedPassword};
     const user_details_obtained  = await userRegistrationRepository(userData);
     if(!user_details_obtained){
         throw AppError(
@@ -43,6 +44,7 @@ export const userRegistrationService = async(payment_id,details)=>{
             '500'
         );
     }
+    return user_details_obtained;
 }
 
 export const setProfliePicService = async(filePath,user_id)=>{
@@ -65,11 +67,17 @@ export const setPreRegistrationDetailsService = async(details,user_id)=>{
     return result;
 }
 
-export const forgotPasswordRequestService = async(email)=>{
+export const forgotPasswordRequestService = async({email})=>{
     const token = crypto.randomBytes(32).toString('hex');
-    const expires = Date.now() + (1000 * 60 * 60 * 3); // expires in 3hrs
+    const expires = new Date(Date.now() + (1000 * 60 * 60 * 3)); // expires in 3hrs
+    console.log(expires);
+    console.log(typeof(token));
+    console.log(typeof(email));
     const result = await forgotPasswordRequestRepository({token,expires,email});
-    await emailQueue.add({
+    console.log(result);
+    await emailQueue.add(
+        "send-email",
+        {
             to:email,
             subject:"reset password",
             token:result.token,
@@ -156,7 +164,7 @@ export const getProfileService = async(user_id)=>{
 
 export const setKnowMeService = async(user_id,know_me)=>{
     const result = await setKnowMeRepository(user_id,know_me);
-    if(! result.rowCount == 0)
+    if(result.rowCount == 0)
         throw new AppError(
             "CREDENTIALS_NOT_UPDATED",
             "could not update know me",
@@ -165,14 +173,14 @@ export const setKnowMeService = async(user_id,know_me)=>{
 }
 
 export const getAllUsersInCollegeService = async(section_id)=>{  
-    const result = await getAllUsersInCollegeRepository(college_id);
+    const result = await getAllUsersInCollegeRepository(section_id);
      if(!result)
         throw new AppError(
             "INVALID_USER_ID",
             ERROR_CODES.INVALID_USER_ID.message,
             ERROR_CODES.INVALID_USER_ID.statusCode
         );
-    return result;
+    return result.rows;
 }
 
 export const setVisibilityService = async(user_id,mode)=>{
@@ -190,4 +198,5 @@ export const setVisibilityService = async(user_id,mode)=>{
             "unable to set mode please try again",
             500
         );
+    return result.rows[0];
 }

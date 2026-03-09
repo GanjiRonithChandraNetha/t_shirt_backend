@@ -1,5 +1,5 @@
-import AppError from "../../shared/utils/AppError";
-import { ERROR_CODES } from "../../shared/constants/errorCodes";
+import AppError from "../../shared/utils/AppError.js";
+import { ERROR_CODES } from "../../shared/constants/errorCodes.js";
 import { 
     getFriendsRepository,
     getPendingRequestSentRepository,
@@ -8,7 +8,7 @@ import {
     acceptOrRejectRequestRepository,
     cancelRequestRepository,
     unfriendRepository
-} from "./friends.repository";
+} from "./friends.repository.js";
 
 
 export const getFriendsService = async(user_id)=>{
@@ -59,7 +59,9 @@ export const sendRequestService = async(user_id,friend_id)=>{
             ERROR_CODES.INVALID_USER_ID.message,
             ERROR_CODES.INVALID_USER_ID.statusCode
         );
+    console.log("user_id: ",user_id,"  friend_id: "+friend_id);
     const result = await sendRequestRepository(user_id,friend_id);
+    console.log(result);
     if(result.rowCount == 0)
         throw new AppError(
             "ALREADY_FRIENDS",
@@ -76,7 +78,7 @@ export const acceptOrRejectRequestService = async( id,user_id,type)=>{
             "illeagal response for request is sent",
             400
         );
-    const result = await acceptOrRejectRequestRepository(id,user_id,type == 'accept'? "accepted" : "rejected");
+    const result = await acceptOrRejectRequestRepository({id,user_id,type:type == 'accept'? "accepted" : "rejected"});
     if(result.rowCount === 0)
         throw new AppError(
             "REQEST_DOEST_EXISTS",

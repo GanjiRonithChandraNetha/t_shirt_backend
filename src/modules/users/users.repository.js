@@ -2,9 +2,11 @@ import { pool } from '../../database/connection.js';
 import AppError from '../../shared/utils/AppError.js';
 
 
-export const findUserRepository = async(email,mobile_no)=>{
+export const findUserRepository = async({email,mobile_no})=>{
+    console.log("EMAIL"+email+","+mobile_no);
     return await pool.query(
         "SELECT user_id FROM users WHERE email=$1 OR mobile_no=$2",
+        // "SELECT 1 ",
         [email,mobile_no]
     );
 }
@@ -14,13 +16,14 @@ export const userRegistrationRepository = async({
     section_id,
     mobile_no,
     email,
-    size
+    size,
+    password
 })=>{
     const user_data = await pool.query(`
-            INSERT INTO users (section_id,mobile_no,email,name,size) 
-            VALUES ($1,$2,$3,$4,$5)
-            RETURNING user_id,section_id,mobile_no,email,name,size;
-        `,[section_id,mobile_no,email,name,size]); 
+            INSERT INTO users (section_id,mobile_no,email,name,t_shirt_size_preference,password ) 
+            VALUES ($1,$2,$3,$4,$5,$6)
+            RETURNING user_id,section_id,mobile_no,email,name,t_shirt_size_preference ;
+        `,[section_id,mobile_no,email,name,size,password]); 
 
     return user_data.rows[0];
 }
@@ -53,9 +56,9 @@ export const setPreRegistrationDetailsRepository = async(
             section_id = $2,
             mobile_no = $3,
             email = $4,
-            size = $5
+            t_shirt_size_preference  = $5
         WHERE user_id = $6
-        RETURNING name,section_id,mobile_no,email,size,user_id
+        RETURNING name,section_id,mobile_no,email,t_shirt_size_preference ,user_id
         `,[name,section_id,mobile_no,email,size,user_id]
     );
     if(result.rows.length == 0) throw new AppError(
@@ -67,6 +70,13 @@ export const setPreRegistrationDetailsRepository = async(
 }
 
 export const forgotPasswordRequestRepository = async({token,expires,email})=>{
+    console.log(typeof(token));
+    console.log(token);
+
+    const result1 = await pool.query(
+        `SELECT user_id,name FROM users WHERE email = 'ronithganji21@gmail.com' `
+    )
+
     const result = await pool.query(`
             UPDATE users SET reset_token = $1 ,
             reset_token_expires = $2
@@ -74,8 +84,11 @@ export const forgotPasswordRequestRepository = async({token,expires,email})=>{
             RETURNING reset_token_expires,user_id;
         `,[token,expires,email]
     );
+    console.log(email,expires,token);
+    console.log(result1);
+    console.log(result);
 
-    if(result.length == 0)
+    if(result.rows.length === 0)
         throw new AppError(
             "INVALID_EMAIL",
             "user with this eamil:"+email+" doent exists ",
@@ -150,7 +163,9 @@ export const getAllUsersInCollegeRepository = async(section_id)=>{
 
 export const setVisibilityRepository = async(user_id,mode)=>{
     return await pool.query(
-        `UPDATE users SET visibiltiy=$1 WHERE user_id=$2`,
+        `UPDATE users SET visibility=$1 
+        WHERE user_id=$2
+        RETURNING user_id,visibility`,
         [mode,user_id]
     );
 }

@@ -18,7 +18,6 @@ export const getCollegesController = asyncHandler(async (req, res) => {
 export const getBranchesController = asyncHandler(async (req, res) => {
     // console.log(req.params);
     // console.log(req.query);
-    const data = req.params;
     const { college_id } = req.params;
     const branches = await getBranchesService(college_id);
 

@@ -65,12 +65,12 @@ export const sendSignRepository = async(reciver_id,user_id,signData)=>{
         message = EXCLUDED.message,
         quote = EXCLUDED.quote,
         updated_at = NOW()
-        WHERE signed_at > NOW() - INTERVAL '10 minutes'`,
+        WHERE signatures.signed_at > NOW() - INTERVAL '10 minutes'`,
         [reciver_id,user_id,signData.quote,signData.message,signData.sticker]
     );
 }
 
-export const getAllSignService = async(user_id)=>{
+export const getAllSignRepository = async(user_id)=>{
     return await pool.query(
         `SELECT 
             s.sign_id,

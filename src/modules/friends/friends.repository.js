@@ -1,4 +1,4 @@
-import { pool } from "../../database/connection";
+import { pool } from "../../database/connection.js";
 
 export const getFriendsRepository = async(user_id)=>{
     return await pool.query(
@@ -24,39 +24,45 @@ export const getPendingRequestSentRepository = async(user_id)=>{
 
 export const getPendingRequestReceivedRepository = async(user_id)=>{
     return await pool.query(
-        `SELECT id,followee,status FROM 
+        `SELECT id,followee,status FROM followers
         WHERE follower=$1 AND status='pending'`,
         [user_id]
     );
 }
 export const sendRequestRepository = async(user_id,friend_id)=>{
     return await pool.query(
-        `INSERT INTO friends (followee, follower, status)
+        `INSERT INTO followers (followee, follower, status)
         VALUES ($1, $2, 'pending')
-        ON CONFLICT ON CONSTRAINT unique_follow_pair
+        ON CONFLICT ON CONSTRAINT  unique_follow_pair_min_max
         DO UPDATE
         SET status = CASE
-            WHEN friends.status = 'pending' THEN 'accepted'
-            WHEN friends.status = 'rejected' THEN 'pending'
-            ELSE friends.status
+            WHEN followers.status = 'pending' THEN 'accepted'
+            WHEN followers.status = 'rejected' THEN 'pending'
+            ELSE followers.status
         END
-        WHERE friends.status != 'accepted'
+        WHERE followers.status != 'accepted'
         RETURNING status;`,
         [user_id,friend_id]
     );
 }
 
-export const acceptOrRejectRequestRepository = async(id ,user_id ,type)=>{
-    return await pg.query(
+export const acceptOrRejectRequestRepository = async({id ,user_id ,type})=>{
+    // const result = await pool.query(
+    //     "SELECT * FROM followers WHERE follower=$2 AND status = 'pending' AND followee=$1",
+    //     [id,user_id]
+    // );
+    // console.log(id,user_id);
+    // console.log(result);
+    return await pool.query(
         `UPDATE followers SET status = $1 
-        WHERE id=$2 AND status = 'pending' AND followee=$3
-        RETURNING id,status`,
-        [type,id, user_id]
+        WHERE follower=$2 AND status = 'pending' AND followee=$3
+        RETURNING follower,status`,
+        [type,id,user_id]
     );
 }
 
 export const cancelRequestRepository = async(user_id,friend_id)=>{
-    return await pg.query(
+    return await pool.query(
         `DELETE FROM followers 
         WHERE (
             (followee=$1 AND follower=$2)
@@ -69,7 +75,7 @@ export const cancelRequestRepository = async(user_id,friend_id)=>{
 }
 
 export const unfriendRepository = async(user_id,friend_id)=>{
-    return await pg.query(
+    return await pool.query(
         `DELETE FROM followers 
         WHERE (
             (followee=$1 AND follower=$2)

@@ -1,5 +1,5 @@
-import { asyncHandler } from "../../shared/utils/asyncHandler";
-import { responseDataAggregator } from "../../shared/utils/responseDataAggregator";
+import { asyncHandler } from "../../shared/utils/asyncHandler.js";
+import { responseDataAggregator } from "../../shared/utils/responseDataAggregator.js";
 import { 
     getFriendsService,
     getPendingRequestSentService,
@@ -8,7 +8,7 @@ import {
     acceptOrRejectRequestService,
     cancelRequestService,
     unfriendService
-} from "./friends.service";
+} from "./friends.service.js";
 
 
 export const getFriendsController = asyncHandler(async(req,res)=>{
@@ -33,7 +33,7 @@ export const getPendingRequestRecievedController = asyncHandler(async(req,res)=>
 })
 
 export const sendRequestController = asyncHandler(async(req,res)=>{
-    const friend_id = req.params.user_id;
+    const friend_id = req.params.friend_id;
     const user_id = req.user.user_id;
     const message = await sendRequestService(user_id,friend_id);
     const obj = responseDataAggregator(req,{success:true,data:message});
@@ -41,7 +41,7 @@ export const sendRequestController = asyncHandler(async(req,res)=>{
 })
 
 export const acceptOrRejectRequestController = asyncHandler(async(req,res)=>{
-    const id = req.params.follow_id;
+    const id = req.body.friend_id;
     const type = req.query.response;
     const user_id = req.user.user_id;
     await acceptOrRejectRequestService(id,user_id,type);
@@ -58,6 +58,7 @@ export const cancelRequestController = asyncHandler(async(req,res)=>{
 });
 
 export const unfriendController = asyncHandler(async(req,res)=>{
+    console.log("unfrind");
     const friend_id = req.body.friend_id;
     const user_id = req.user.user_id;
     await unfriendService(user_id,friend_id);

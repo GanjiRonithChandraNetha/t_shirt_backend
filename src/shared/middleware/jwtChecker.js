@@ -5,7 +5,8 @@ export const SECRET = process.env.JWT_SECRET;
 
 export const jwtChecker = async(req,res,next)=>{
     try {
-        const authHeader = req.headers['Autherization'];
+        // console.log(req.headers);
+        const authHeader = req.headers['authorization'];
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return res.status(401).json({ message: "No token provided" });

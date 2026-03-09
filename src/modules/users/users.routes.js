@@ -1,5 +1,5 @@
-import { Route } from "express";
-import { forgotPasswordLimiter } from "../../shared/middleware/forgotPasswordLimiter";
+import { Router } from "express";
+import { forgotPasswordLimiter } from "../../shared/middleware/forgotPasswordLimiter.js";
 import {
     userRegistrationController,
     setProfliePicController,
@@ -15,7 +15,7 @@ import {
 import { profilePicUpload } from "../../shared/middleware/multer.middleware.js";
 import { jwtChecker } from "../../shared/middleware/jwtChecker.js";
 
-const router = Route();
+const router = Router();
 
 router.post('/auth/register',userRegistrationController);
 //file name should be same from the frontend
@@ -28,6 +28,6 @@ router.post('/user',jwtChecker,setPreRegistrationDetailsController);
 router.get('/user/:user_id',jwtChecker,getProfileController);
 router.patch('/user/know-me',jwtChecker,setKnowMeController);
 router.get('/users',jwtChecker,getAllUsersInCollegeController);
-router.patch('/users/mode/:mode',setVisibilityController);
+router.patch('/user/mode/:mode',jwtChecker,setVisibilityController);
 
 export default router;

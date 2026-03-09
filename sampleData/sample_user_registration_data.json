@@ -1,0 +1,113 @@
+[{
+    "details": {
+      "name": "Tanya Joshi",
+      "section_id": "4",
+      "mobile_no": "9988990011",
+      "size": "L",
+      "email": "tanyajoshi@gmail.com",
+      "password": "Tanya77@"
+    }
+  },
+
+  {
+    "details": {
+      "name": "Raghav Bansal",
+      "section_id": "4",
+      "mobile_no": "9977889900",
+      "size": "M",
+      "email": "raghavbansal@gmail.com",
+      "password": "Raghav88@"
+    }
+  },
+{
+    "details": {
+      "name": "Isha Gupta",
+      "section_id": "4",
+      "mobile_no": "9966778899",
+      "size": "S",
+      "email": "ishagupta@gmail.com",
+      "password": "Isha99#"
+    }
+  },
+{
+    "details": {
+      "name": "Vikram Singh",
+      "section_id": "4",
+      "mobile_no": "9955667788",
+      "size": "L",
+      "email": "vikramsingh@gmail.com",
+      "password": "Vikram77@"
+    }
+  },
+{
+    "details": {
+      "name": "Neha Kapoor",
+      "section_id": "4",
+      "mobile_no": "9944556677",
+      "size": "M",
+      "email": "nehakapoor@gmail.com",
+      "password": "Neha88@#"
+    }
+  },
+{
+    "details": {
+      "name": "Siddharth Reddy",
+      "section_id": "4",
+      "mobile_no": "9933445566",
+      "size": "XL",
+      "email": "siddharthreddy@gmail.com",
+      "password": "Siddh99#"
+    }
+  },
+{
+    "details": {
+      "name": "Priya Verma",
+      "section_id": "4",
+      "mobile_no": "9922334455",
+      "size": "S",
+      "email": "priyaverma@gmail.com",
+      "password": "Priya88#"
+    }
+  },
+{
+    "details": {
+      "name": "Aditya Mehta",
+      "section_id": "4",
+      "mobile_no": "9911445566",
+      "size": "L",
+      "email": "adityamehta@gmail.com",
+      "password": "Aditya77@"
+    }
+  },
+{
+    "details": {
+      "name": "Ananya Sharma",
+      "section_id": "4",
+      "mobile_no": "9901123344",
+      "size": "M",
+      "email": "ananyasharma@gmail.com",
+      "password": "Ananya99@"
+    }
+  },
+{
+    "details": {
+        "name": "Rohan krishna",
+        "section_id": "4",
+        "mobile_no": "9912335788",
+        "size": "XL",
+        "email": "rohankrish@gmail.com",
+        "password": "Rohan88@#",
+        "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTEiLCJlbWFpbCI6InJvaGFua3Jpc2hAZ21haWwuY29tIiwic2VjdGlvbl9pZCI6IjQiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3Mjk3NDMzMCwiZXhwIjoxNzczMDYwNzMwfQ.tyjJOLBoCxGIYzEwJvVVl5UjiSt1LBRSU8t9gFfA-Vo"
+    }
+},
+{
+    "details": {
+        "name": "Ronith Ganji",
+        "section_id": "4",
+        "mobile_no": "9908075788",
+        "size": "M",
+        "email": "ronithganji21@gmail.com",
+        "password": "Ronith99080@#",
+        "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTAiLCJlbWFpbCI6InJvbml0aGdhbmppMjFAZ21haWwuY29tIiwic2VjdGlvbl9pZCI6IjQiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3MjkzNjcwNSwiZXhwIjoxNzczMDIzMTA1fQ.7D51lOQyN1KSz5wpBTK44xX4FwowLj2u51muYOgb8mA"
+    }
+}]
