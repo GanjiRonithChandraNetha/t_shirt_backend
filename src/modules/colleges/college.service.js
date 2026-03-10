@@ -75,4 +75,5 @@ export const getCollegeStatsService = async (user_id)=>{
             500
         )
     }
+    return statData;
 }

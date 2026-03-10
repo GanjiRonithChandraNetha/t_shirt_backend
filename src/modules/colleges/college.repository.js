@@ -22,6 +22,7 @@ const getSectionsRepository = async(branch_id)=>{
 }
 
 const getCollegeStatsRepository = async(user_id)=>{
+    console.log(user_id);
     const data = await pool.query(`
             SELECT
                 -- Enrollment
@@ -62,8 +63,14 @@ const getCollegeStatsRepository = async(user_id)=>{
                 SELECT branch_id, SUM(strength) AS total
                 FROM sections
                 GROUP BY branch_id
-            ) branch_cap ON branch_cap.branch_id = ul.branch_id;
+            ) branch_cap ON branch_cap.branch_id = ul.branch_id
+             
+            GROUP BY 
+            college_cap.total,
+            branch_cap.total,
+            ul.strength;
         `,[user_id]);
+    console.log(data);
     return data.rows[0];
 }
 
