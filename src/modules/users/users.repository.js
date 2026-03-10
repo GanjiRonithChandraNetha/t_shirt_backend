@@ -147,7 +147,8 @@ export const setKnowMeRepository = async(user_id,know_me)=>{
 
 
 export const getAllUsersInCollegeRepository = async(section_id)=>{
-    return await pool.query(`SELECT 
+    console.log(section_id);
+    const result =  await pool.query(`SELECT 
             u.user_id,
             b.branch_name,
             s.section_name,
@@ -167,6 +168,8 @@ export const getAllUsersInCollegeRepository = async(section_id)=>{
         );`,
         [section_id]
     );
+    console.log(result.rows,result);
+    return result;
 }
 
 export const setVisibilityRepository = async(user_id,mode)=>{

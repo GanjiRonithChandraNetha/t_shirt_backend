@@ -10,13 +10,16 @@ import cors from 'cors';
 
 const app = express();
 app.use(express.json());
-app.use(cors({
-    origin:  [
-    "http://localhost:5173",
-    "http://localhost:5174"
-  ],
-    credentials: true
-}));
+// app.use(cors({
+//     origin:  [
+//     "http://localhost:5173",
+//     "http://localhost:5174",
+//     "http://192.168.29.215:8081/_expo/loading"
+//   ],
+//     credentials: true
+// }));
+app.use(cors());
+
 
 app.use("/college",collegeRoutes);
 app.use("/",userRouters);
