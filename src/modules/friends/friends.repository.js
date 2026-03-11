@@ -29,11 +29,12 @@ export const getPendingRequestReceivedRepository = async(user_id)=>{
         [user_id]
     );
 }
-export const sendRequestRepository = async(user_id,friend_id)=>{
+
+export const sendRequestRepository = async(user_id, friend_id) => {
     return await pool.query(
         `INSERT INTO followers (followee, follower, status)
         VALUES ($1, $2, 'pending')
-        ON CONFLICT ON CONSTRAINT  unique_follow_pair_min_max
+        ON CONFLICT (LEAST(follower, followee), GREATEST(follower, followee))
         DO UPDATE
         SET status = CASE
             WHEN followers.status = 'pending' THEN 'accepted'
@@ -42,7 +43,7 @@ export const sendRequestRepository = async(user_id,friend_id)=>{
         END
         WHERE followers.status != 'accepted'
         RETURNING status;`,
-        [user_id,friend_id]
+        [user_id, friend_id]
     );
 }
 

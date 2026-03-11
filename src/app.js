@@ -8,18 +8,18 @@ import errorMiddleware from './shared/middleware/error.middleware.js';
 import { jwtChecker } from './shared/middleware/jwtChecker.js';
 import cors from 'cors';
 
-const app = express();
-app.use(express.json());
-// app.use(cors({
-//     origin:  [
-//     "http://localhost:5173",
-//     "http://localhost:5174",
-//     "http://192.168.29.215:8081/_expo/loading"
-//   ],
-//     credentials: true
-// }));
-app.use(cors());
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+const app = express();
+app.use('/images', express.static('images'));
+app.use(express.json());
+app.use(cors({
+    origin: "*",
+    credentials: true
+}));
 
 app.use("/college",collegeRoutes);
 app.use("/",userRouters);

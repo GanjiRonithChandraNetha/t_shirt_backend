@@ -285,3 +285,8 @@ CREATE INDEX idx_signatures_signed_at        ON signatures(signed_at DESC);
 
 
 COMMIT;
+
+
+ALTER TABLE users RENAME COLUMN mobile TO mobile_no;
+
+ALTER TABLE users ADD COLUMN password TEXT NOT NULL;
