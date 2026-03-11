@@ -5,7 +5,9 @@ import {
     voteService,
     submitClassImageService,
     classImagesService,
-    finalClassImageService
+    finalClassImageService,
+    unVoteService,
+    haveVotedService
 } from './voting.service.js';
 import { impDates } from '../../shared/constants/dates.js';
 
@@ -42,5 +44,28 @@ export const finalClassImageController = asyncHandler(async(req,res)=>{
     const section_id = req.user.section_id;
     const result = await finalClassImageService(section_id);
     const obj = responseDataAggregator(req,result);
+    res.status(200).json(obj);
+})
+
+export const unVoteController = asyncHandler(async(req,res)=>{
+    const user_id = req.user.user_id;
+    const result = unVoteService(user_id);
+    const obj = responseDataAggregator(req,
+        {
+            success:true,
+            data:result
+        }
+    )
+    res.status(200).json(obj);
+})
+
+export const haveVotedController = asyncHandler(async(req,res)=>{
+    const user_id = req.user.user_id;
+    const result = haveVotedService(user_id);
+    const obj = responseDataAggregator(req,
+    {
+        success:false,    
+        voted:result
+    });
     res.status(200).json(obj);
 })
