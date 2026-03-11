@@ -5,7 +5,9 @@ import {
     classImagesRepository,
     submitClassImageRepository,
     finalClassImageRepository,
-    finalizeClassImageForeEverySectionRepository
+    finalizeClassImageForeEverySectionRepository,
+    unVoteRepository,
+    haveVotedRepository
  } from './voting.repository.js';
 import { impDates } from '../../shared/constants/dates.js';
 
@@ -71,3 +73,20 @@ export const finalizeClassImageForeEverySectionService = async()=>{
         data:result.rows
     };
 } 
+
+export const unVoteService = async(user_id)=>{
+    const result = await unVoteRepository(user_id);
+    if(result.rowCount === 0)
+        throw new AppError(
+            "HAVE_NOT_VOTED_YET",
+            "you have not voted any design yet",
+            400
+        );
+    return result.rows[0];
+}
+
+export const haveVotedService = async(user_id)=>{
+    const result = await haveVotedRepository(user_id);
+    if(result.rowCount === 0) return false;
+    return true;
+}

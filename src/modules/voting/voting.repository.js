@@ -91,3 +91,18 @@ export const finalizeClassImageForeEverySectionRepository = async()=>{
         ; `
     );
 }
+
+export const unVoteRepository = async(user_id)=>{
+    return await pool.query(
+        `DELETE FROM votes WHERE voter_id = $1
+        RETURING voted_for`,
+        [user_id]
+    );
+}
+
+export const haveVotedRepository = async(user_id)=>{
+    return await pool.query(
+        `SELECT voted_for FROM votes WHERE voter_id = $1`,
+        [user_id]
+    );
+}
