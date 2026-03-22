@@ -6,7 +6,7 @@ import app from "./app.js";
 console.log(process.env.PORT);
 
 import {pool} from "./database/connection.js";
-
+import {initializeSMTP,SMTPIsLive} from "./shared/utils/initRedis.js";
 const PORT = process.env.PORT || 5000;
 
 // Start Server Function
@@ -15,6 +15,14 @@ const startServer = async () => {
         // 1️⃣ Test DB Connection
         await pool.query("SELECT 1");
         console.log("✅ Database Connected");
+
+        // initalizing redis server
+        initializeSMTP();
+        if(SMTPIsLive){
+            console.log("Data initailized and Redis is live");
+        }else{
+            console.log("Redis is not live ForgotPassword will not work");
+        }
 
         // 2️⃣ Start HTTP Server
         const server = app.listen(PORT, () => {

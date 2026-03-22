@@ -22,6 +22,7 @@ import {
     forgotPasswordValidator,
     resetPasswordValidator
 } from "./users.validator.js";
+import {friendlyDateFormat} from "../../shared/utils/friendlyDateFormat.js"
 
 
 const know_meLength = process.env.KNOW_ME_LENGTH || 100;
@@ -143,10 +144,10 @@ export const forgotPasswordRequestController = asyncHandler(async(req,res)=>{
             400
         );
     const result = await forgotPasswordRequestService(email);
-
+    console.log(result);
     const obj = responseDataAggregator(req,{
         success:true,
-        message:"reset link has been sent will expire in "+result+`will recive mail if user with ${email} exsits`
+        message:"reset link has been sent will expire in "+friendlyDateFormat(result)+`\nwill recive mail if user with ${email} exsits`
     });
 
     res.status(200).json(obj)

@@ -1,7 +1,7 @@
 import { smtpHelper } from "../constants/stmpData.js";
 import 'dotenv/config';
-console.log(process.env.MAIL_1_PASS);
-
+console.log("(inside getValidMail.js)",process.env.MAIL_1_PASS);
+// smtpHelper.forEach(e=>console.log("(inside getValidMail.js)",e));
 export const getValidMail = ()=>{
     // smtpHelper.forEach( ele =>{console.log(ele)})
     const mailer = smtpHelper.find(acc=>{

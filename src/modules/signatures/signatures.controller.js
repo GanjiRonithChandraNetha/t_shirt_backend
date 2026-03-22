@@ -8,28 +8,29 @@ import {
     viewedSignService
  } from './signatures.service.js';
 import { responseDataAggregator } from "../../shared/utils/responseDataAggregator.js";
+import { success } from 'zod';
 
 
 export const sendSignController = asyncHandler(async(req,res)=>{
-    console.log("HELLO");
-    console.log(req.file);
-    console.log(req.body);
+    // console.log("HELLO");
+    // console.log(req.file);
+    // console.log(req.body);
     const signData = req.body;
     const user_id = req.user.user_id;
-    const reciver_id = req.body.reciver_id;
+    const receiver_id = req.body.receiver_id;
     if(!signData.quote )
         throw new AppError(
             "INVALID_SIGN_DATA",
             "sign data is incomplete please send proper data",
             400
         );
-    console.log(signData);
-    console.log(process.cwd());
+    // console.log(signData);
+    // console.log(process.cwd());
     signData.quote = signData.quote.trim();
     signData.message = (!signData.message)?null:signData.message.trim();
     signData.sticker = (!req.file)?null:req.file.path;
     
-    console.log(signData);
+    // console.log(signData);
     const zodResult = signDataValidator.safeParse(signData);
     if(!zodResult.success)
         throw new AppError(
@@ -37,8 +38,10 @@ export const sendSignController = asyncHandler(async(req,res)=>{
             zodResult.error.issues,
             400
         );
+
+    // console.log(user_id,receiver_id);
     
-    const result = await sendSignServer(user_id,reciver_id,signData);
+    const result = await sendSignServer(user_id,receiver_id,signData);
     const obj = responseDataAggregator(req,{
         success:true,
         message:result.message
@@ -50,15 +53,21 @@ export const sendSignController = asyncHandler(async(req,res)=>{
 export const getAllSignsController = asyncHandler(async(req,res)=>{
     const user_id = req.user.user_id;
     const result = await getAllSignService(user_id);
-    const obj = responseDataAggregator(req,result);
+    const obj = responseDataAggregator(req,{
+        success:true,
+        data:result
+    });
     res.status(200).json(obj);
 })
 
 export const deleteAnonymousSignController = asyncHandler(async(req,res)=>{
-    const user_id = req.user_id;
+    const user_id = req.user.user_id;
     const sign_id = req.params.sign_id;
+    // console.log("inside DeleteAnonymousSignController");
+    console.log("user_id: "+user_id,"  sign_id: "+sign_id);
     const result = await deleteAnonymousSignService(user_id,sign_id);
-    const obj = responseDataAggregator(req,)
+    const obj = responseDataAggregator(req,{success:result});
+    res.status(200).json(obj);
 })
 
 export const viewedSignController = asyncHandler(async(req,res)=>{

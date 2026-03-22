@@ -2,25 +2,46 @@ import AppError from "../../shared/utils/AppError.js";
 import { ERROR_CODES } from "../../shared/constants/errorCodes.js";
 
 import { 
-    sendSignAnoymousRepository,
+    sendSignAnonymousRepository,
     sendSignRepository,
     getAllSignRepository,
     deleteAnonymousSignRepository,
     viewedSignRepository
 } from "./signatures.repository.js";
 
-const anonymousLimit = process.env.ANONYMOUS_LIMIT;
-export const sendSignServer = async(user_id,reciver_id,signData)=>{
+const anonymousLimit = process.env.ANONYMOUS_LIMIT || 20;
+export const sendSignServer = async(user_id,receiver_id,signData)=>{
     const type = signData.type;
+    if(receiver_id === user_id){
+        throw new AppError(
+            "SIGN_CANT_BE_SENT_TO_YOURSELF",
+            "u attempetd to send sign to your self go get somefriends",
+            400
+        );
+    }
+    if(!receiver_id)
+        throw new AppError(
+            "INVALID_REQEST",
+            "reciver id not sent ",
+            400
+        );
     if(type == 'anonymous'){
-        const result = await sendSignAnoymousRepository(reciver_id,user_id,signData,anonymousLimit);
-        if(result.error == "error")
+        const result = await sendSignAnonymousRepository(receiver_id,user_id,signData,anonymousLimit);
+        if(!result.success)
+            throw new AppError(
+                "ANONYMOUS_LIMIT_REACHED",
+                "cannot send anonymous sign as limit reached ("+anonymousLimit + ")",
+                400
+            )
+
+        if(result.data.error == "error")
             throw new AppError(
                 result.code,
                 result.message,
                 400
             );
-        if(result.rowCount === 0){
+
+        if(result.data.rowCount === 0){
             throw new AppError(
                 "ANONYMOUS_LIMIT_REACHED",
                 "please delete anonymous signatures to restore the limit",
@@ -31,7 +52,8 @@ export const sendSignServer = async(user_id,reciver_id,signData)=>{
             message:"anonymous message sent successfully"
         };
     }else{
-        const result = await sendSignRepository(user_id,reciver_id,signData);
+        const result = await sendSignRepository(receiver_id,user_id,signData);
+        console.log("receiver_id: "+receiver_id,"  user_id:"+user_id);
         if(result.rowCount === 0){
             throw new AppError(
                 "NOT_FRIENDS",
@@ -52,8 +74,8 @@ export const sendSignServer = async(user_id,reciver_id,signData)=>{
 
 export const getAllSignService = async(user_id)=>{
     const result = await getAllSignRepository(user_id);
-    if(result.rowCount === 0) return {message:"no signs found"};
-    return result.rows[0];
+    if(result.rowCount === 0) return [];
+    return result.rows;
 }
 
 
@@ -65,6 +87,8 @@ export const deleteAnonymousSignService = async(user_id,sign_id)=>{
             404
         );
     const result = await deleteAnonymousSignRepository(user_id,sign_id);
+    console.log(user_id,sign_id);
+    console.log(result.rowCount);
     if(result.rowCount === 0)
           if(!sign_id)
         throw new AppError(
@@ -79,6 +103,6 @@ export const viewedSignService = async(user_id,sign_idArr)=>{
     const result = await viewedSignRepository(user_id,sign_idArr);
     return {
         rowCount:result.rowCount,
-        sing_ids:result.rows[0]
+        sign_ids:result.rows[0]
     };
 }

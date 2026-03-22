@@ -1,5 +1,5 @@
 import 'dotenv/config';
-console.log(process.env.MAIL_1_USER)
+console.log("(inside smtpData):",process.env.MAIL_1_USER)
 
 export const smtpHelper = [
     {

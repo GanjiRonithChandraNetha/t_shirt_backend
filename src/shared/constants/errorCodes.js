@@ -87,6 +87,10 @@ export const ERROR_CODES = {
     "statusCode": 409,
     "message": "The two users are already friends"
   },
+  "REQUEST_ALREADY_EXISTS":{
+    "statusCode": 409,
+    "message": "request was sent already to the person"
+  },
   "REQUEST_NOT_PENDING": {
     "statusCode": 409,
     "message": "Request has already been accepted or rejected"

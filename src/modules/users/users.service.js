@@ -71,18 +71,25 @@ export const setPreRegistrationDetailsService = async(details,user_id)=>{
 export const forgotPasswordRequestService = async(email)=>{
     const token = crypto.randomBytes(32).toString('hex');
     const expires = new Date(Date.now() + (1000 * 60 * 60 * 3)); // expires in 3hrs
-    console.log(expires);
-    console.log(typeof(token));
-    console.log(typeof(email));
+    // console.log(expires);
+    // console.log(typeof(token));
+    // console.log(typeof(email));
     const result = await forgotPasswordRequestRepository({token,expires,email});
-    console.log(result);
+    if(!result.rows || result.rows.length === 0){
+        throw new AppError(
+            "INTERTNAL_SERVER_ERROR",
+            "didnt recive reset password details",
+            500
+        );
+    }
+    const details = result.rows[0];
     await emailQueue.add(
         "send-email",
         {
             to:email,
             subject:"reset password",
-            token:result.reset_token,
-            user_id:result.user_id
+            token:details.reset_token,
+            user_id:details.user_id
         },
         {
             attempts: 5,
@@ -92,8 +99,8 @@ export const forgotPasswordRequestService = async(email)=>{
             }
         }
     );
-
-    return result.expires;
+    console.log(details);
+    return details.reset_token_expires;
 }
 
 export const resetPasswordService = async(token,password,user_id)=>{

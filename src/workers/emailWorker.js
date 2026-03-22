@@ -1,8 +1,9 @@
 import 'dotenv/config';
-console.log(process.env.MAIL_1_USER);
+console.log("mailUser:",process.env.MAIL_1_USER);
 import { emailQueue } from "../shared/utils/queues.js";
 import { getTransporter } from "../shared/utils/mail.transporter.js";
 import { redisEmailLogger } from "../shared/utils/loggers.js";
+import { smtpHelper } from '../shared/constants/stmpData.js';
 
 console.log("worker is on the job")
 
@@ -39,8 +40,11 @@ emailQueue.process('send-email',10, async (job) => {
 });
 
 emailQueue.on("completed", (job, result) => {
+    console.log("INSIDE SUCCESS SECTION");
     console.log(`Job ${job.id} completed! Result:`, result);
     console.log(job)
+    console.log("Email User Used: "+job.data);
+
 
   // Your post-job logic here
 //   updateDatabaseStatus(job.data.userId, "email_sent");

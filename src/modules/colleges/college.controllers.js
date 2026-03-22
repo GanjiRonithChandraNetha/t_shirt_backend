@@ -37,10 +37,9 @@ export const getSectionsController = asyncHandler(async (req, res) => {
 
 // protected route
 export const getCollegeStatsController = asyncHandler(async (req,res)=>{
-    console.log("connected with the bakend");
     const {user_id} = req.user //req shoudl have user section which will store data derived from token
     const stats = await getCollegeStatsService(user_id);
-    console.log(stats);
+    // console.log(stats);
     const obj = responseDataAggregator(req, { success: true, data: stats });
     res.status(200).json(obj);
 })

@@ -46,8 +46,9 @@ export const getPendingRequestReceivedService = async(user_id)=>{
     return result.rows;
 }
 
-export const sendRequestService = async(user_id,friend_id)=>{
-    if(!friend_id)
+export const sendRequestService = async(user_id,followee_id)=>{
+    console.log(user_id,followee_id);
+    if(!followee_id)
         throw new AppError(
             "INVALID_FRIEND_ID",
             "invalid friend_id sent, please try again",
@@ -59,26 +60,27 @@ export const sendRequestService = async(user_id,friend_id)=>{
             ERROR_CODES.INVALID_USER_ID.message,
             ERROR_CODES.INVALID_USER_ID.statusCode
         );
-    console.log("user_id: ",user_id,"  friend_id: "+friend_id);
-    const result = await sendRequestRepository(user_id,friend_id);
+    console.log("user_id: ",user_id,"  followee_id: "+followee_id);
+    const result = await sendRequestRepository(user_id,followee_id);
     console.log(result);
     if(result.rowCount == 0)
         throw new AppError(
-            "ALREADY_FRIENDS",
-            ERROR_CODES.ALREADY_FRIENDS.message,
-            ERROR_CODES.ALREADY_FRIENDS.statusCode
+            "REQUEST_ALREADY_EXISTS",
+            ERROR_CODES.REQUEST_ALREADY_EXISTS.message,
+            ERROR_CODES.REQUEST_ALREADY_EXISTS.statusCode
         );
-    return result.rows[0];
+    return result.rows[0]; 
 }
 
-export const acceptOrRejectRequestService = async( id,user_id,type)=>{
+export const acceptOrRejectRequestService = async( {follower_id,user_id,type})=>{
+    console.log(["accept","reject"].includes(type) , type);
     if(!["accept","reject"].includes(type))
         throw new AppError(
             "INVALID_RESPONSE",
             "illeagal response for request is sent",
             400
         );
-    const result = await acceptOrRejectRequestRepository({id,user_id,type:type == 'accept'? "accepted" : "rejected"});
+    const result = await acceptOrRejectRequestRepository({follower_id,user_id,type:type == 'accept'? "accepted" : "rejected"});
     if(result.rowCount === 0)
         throw new AppError(
             "REQEST_DOEST_EXISTS",

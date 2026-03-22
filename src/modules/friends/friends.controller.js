@@ -33,18 +33,18 @@ export const getPendingRequestRecievedController = asyncHandler(async(req,res)=>
 })
 
 export const sendRequestController = asyncHandler(async(req,res)=>{
-    const friend_id = req.params.friend_id;
+    const followee_id = req.params.followee_id;
     const user_id = req.user.user_id;
-    const message = await sendRequestService(user_id,friend_id);
+    const message = await sendRequestService(user_id,followee_id);
     const obj = responseDataAggregator(req,{success:true,data:message});
     res.status(200).json(obj);
 })
 
 export const acceptOrRejectRequestController = asyncHandler(async(req,res)=>{
-    const id = req.body.friend_id;
-    const type = req.query.response;
+    const follower_id = req.body.follower_id;
+    const type = req.body.type;
     const user_id = req.user.user_id;
-    await acceptOrRejectRequestService(id,user_id,type);
+    await acceptOrRejectRequestService({follower_id,user_id,type});
     const obj = responseDataAggregator(req,{success:true});
     res.status(200).json(obj);
 })

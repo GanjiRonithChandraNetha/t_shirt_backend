@@ -1,0 +1,12 @@
+{
+    sign_id: '1',
+    author_id: '10',
+    name: 'John Doe',
+    mobile: '+91 98765 43210',
+    email: 'john@edu.com',
+    quote: 'Life is a journey, not a destination.',
+    message: 'You were the best lab partner! Good luck with the future.',
+    type: 'non_anonymous',
+    profile_pic: 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+    visibility: 'public'
+}

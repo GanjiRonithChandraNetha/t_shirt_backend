@@ -86,9 +86,9 @@ export const forgotPasswordRequestRepository = async({token,expires,email})=>{
             RETURNING reset_token_expires,user_id,reset_token;
         `,[token,expires,email]
     );
-    console.log(email,expires,token);
+    // console.log(email,expires,token);
     // console.log(result1);
-    console.log(result);
+    // console.log(result);
 
     if(result.rows.length === 0)
         throw new AppError(
@@ -96,7 +96,7 @@ export const forgotPasswordRequestRepository = async({token,expires,email})=>{
             "user with this eamil:"+email+" doent exists ",
             404
         );
-    return result.rows[0]
+    return result
 }
 
 
@@ -128,7 +128,7 @@ export const loginRespository = async(email)=>{
 export const getProfileRepository = async(user_id,self)=>{
     if(self)
         return await pool.query(
-            "SELECT name,profile_pic,visibility,know_me,visibility,email,mobile_no FROM users WHERE user_id = $1",
+            "SELECT user_id,name,profile_pic,visibility,know_me,visibility,email,mobile_no,anonymous_count FROM users WHERE user_id = $1",
             [user_id]
         );
     else
@@ -165,7 +165,8 @@ export const getAllUsersInCollegeRepository = async(section_id)=>{
             JOIN branches b2 ON s2.branch_id = b2.branch_id
             JOIN colleges c2 ON b2.college_id = c2.college_id
             WHERE s2.section_id = $1
-        );`,
+        )
+        ORDER BY u.name;`,
         [section_id]
     );
     console.log(result.rows,result);

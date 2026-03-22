@@ -1,13 +1,13 @@
 import 'dotenv/config';
-console.log(process.env.MAIL_1_PASS);
+console.log("(inside mail.transported.js) Pass1: ",process.env.MAIL_1_PASS);
 import nodemailer from 'nodemailer';
-import { getValidMail } from './getValidMain.js';
+import { getValidMail } from './getValidMail.js';
 
 
 export const getTransporter = ()=>{
     const account = getValidMail();
     console.log("\n\n\n Ronith");
-    console.log(account);
+    console.log("account:", account);
     console.log("Ronith\n\n\n ");
     if(! account) throw new AppError(
         "ALL_MAIL_EXHUSTED",

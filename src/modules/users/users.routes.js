@@ -24,7 +24,7 @@ router.post('/auth/reset-password',resetPasswordController);
 router.post('/auth/login',loginController);
 
 router.patch('/user/profile-pic',jwtChecker,profilePicUpload.single('profile_pic'),setProfliePicController);
-router.post('/user',jwtChecker,setPreRegistrationDetailsController);
+router.post('/user',jwtChecker,setPreRegistrationDetailsController); // add data constaint middleware 
 router.get('/user/:user_id',jwtChecker,getProfileController);
 router.patch('/user/know-me',jwtChecker,setKnowMeController);
 router.get('/users',jwtChecker,getAllUsersInCollegeController);
