@@ -20,7 +20,7 @@ CREATE TABLE users (
     mobile_no           VARCHAR(15)          NOT NULL UNIQUE,
     email               VARCHAR(255)            NOT NULL UNIQUE,
     name                VARCHAR(255)            NOT NULL,
-    password            TEXT                    NOT NULL
+    password            TEXT                    NOT NULL,
 
     -- FIX #4: added visibility mode column
     visibility          message_mode_type       NOT NULL DEFAULT 'non_anonymous',
@@ -252,7 +252,7 @@ CREATE TABLE signatures (
     media_file   TEXT,
     -- slam_book_id BIGINT,
     in_book      BOOLEAN            DEFAULT FALSE NOT NULL,
-    signed_at    TIMESTAMPTZ        NOT NULL CURRENT_TIMESTAMP,
+    signed_at    TIMESTAMPTZ        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMPTZ,
     viewed       BOOLEAN            NOT NULL DEFAULT FALSE,
 
