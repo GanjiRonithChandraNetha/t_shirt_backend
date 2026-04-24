@@ -1,3 +1,6 @@
+import 'dotenv/config';
+import Queue from "bull";
+
 export const emailQueue = process.env.REDIS_URL_2
   ? new Queue('emailQueue', process.env.REDIS_URL_2)
   : new Queue('emailQueue', {
