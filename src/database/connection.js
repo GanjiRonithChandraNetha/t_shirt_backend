@@ -11,11 +11,11 @@ export const pool = new Pool({
 });
 
 pool.on('connect',()=>{
-    console.log("connected to the database");
+    // console.log("connected to the database");
 })
 
 pool.on('error',()=>{
-    console.log("data base crached");
+    // console.log("data base crached");
     process.exit(-1);
 })
 

@@ -5,6 +5,8 @@ export const userValidator = z.object({
     section_id: z.string().min(1,"invalid section_id"),
     mobile_no:z.string().regex(/^[6-9]\d{9}$/,"invalid mobile number"),
     email:z.email("invalid email"),
+    // email:z.string().regex(/^22[a-zA-Z0-9]{8}@cvr\.ac\.in/,"invalid email used use CVR email only"),
+    // otp:z.string().regex(/[0-9]{6}/,"invalid OTP"),
     size:z.enum(['XL','L','M','S']),
     password:z.string().min(7,'password should atlease have 7 characters')
     .max(20,'cant cross 20 charcters')
@@ -12,7 +14,7 @@ export const userValidator = z.object({
     .regex(/[a-z]/,"atleast one lowercase character")
     .regex(/[A-Z]/,"atleast one uppercase character")
     .regex(/[\d]/,'atlease one numeric charecter')
-    .regex(/[@#]/,'atleast one @ or !')
+    .regex(/[@#]/,'atleast one @ or #')
 })
 
 export const registrationInputValidator = userValidator.strict();
@@ -27,7 +29,7 @@ export const preRegistrationDetailsValidators = userValidator.pick({
     email:true,
     size:true
 }).strict();
-export const forgotPasswordValidator = userValidator.pick({
+export const emailValidator = userValidator.pick({
     email:true
 }).strict();
 export const resetPasswordValidator = userValidator.pick({

@@ -3,10 +3,11 @@ import './scheduler/schedular.js'
 import app from "./app.js";
 // dotenv.config();
 
-console.log(process.env.PORT);
+// console.log(process.env.PORT);
 
 import {pool} from "./database/connection.js";
-import {initializeSMTP,SMTPIsLive} from "./shared/utils/initRedis.js";
+import { initRedis } from './config/redis.js';
+import { initializeSMTP } from './config/initSMPT.js';
 const PORT = process.env.PORT || 5000;
 
 // Start Server Function
@@ -14,32 +15,28 @@ const startServer = async () => {
     try {
         // 1️⃣ Test DB Connection
         await pool.query("SELECT 1");
-        console.log("✅ Database Connected");
+        // console.log("✅ Database Connected");
 
         // initalizing redis server
-        initializeSMTP();
-        if(SMTPIsLive){
-            console.log("Data initailized and Redis is live");
-        }else{
-            console.log("Redis is not live ForgotPassword will not work");
-        }
-
+        await initRedis();
+        await initializeSMTP();
+        
         // 2️⃣ Start HTTP Server
         const server = app.listen(PORT, () => {
-            console.log(`🚀 Server running on port ${PORT}`);
+            // console.log(`🚀 Server running on port ${PORT}`);
         });
 
         // 3️⃣ Graceful Shutdown
         process.on("SIGTERM", () => {
-            console.log("SIGTERM received. Shutting down...");
+            // console.log("SIGTERM received. Shutting down...");
             server.close(() => {
-                console.log("Process terminated");
+                // console.log("Process terminated");
                 process.exit(0);
             });
         });
 
     } catch (error) {
-        console.error("❌ Failed to start server:", error);
+        // console.error("❌ Failed to start server:", error);
         process.exit(1);
     }
 };

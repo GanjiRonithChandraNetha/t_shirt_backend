@@ -22,7 +22,7 @@ app.use(cors({
 }));
 
 app.get("/check",(req,res)=>{
-    console.log(req);
+    // console.log(req);
     res.status(200).json({message:"hoi the server is working"});
 })
 app.use("/college",collegeRoutes);

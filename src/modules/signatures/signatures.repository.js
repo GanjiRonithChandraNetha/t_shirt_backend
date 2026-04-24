@@ -14,7 +14,7 @@ export const sendSignAnonymousRepository = async (
         await client.query("BEGIN");
 
         // 🔥 Atomic check + increment
-        // console.log(receiver_id,user_id);
+        // // console.log(receiver_id,user_id);
 
         const updateRes = await client.query(
             `UPDATE users
@@ -27,9 +27,17 @@ export const sendSignAnonymousRepository = async (
         );
 
         if (updateRes.rowCount === 0) {
-            console.log(updateRes);
+            // console.log(updateRes);
+            const checkIfAnoymousOrNot = await client.query(
+                `SELECT visibility FROM users WHERE user_id = $1`,
+                [receiver_id]
+            );
             await client.query("ROLLBACK");
-            return { success: false, message: "Limit reached" };
+            // console.log(checkIfAnoymousOrNot.rows)
+            if(checkIfAnoymousOrNot.rows[0].visibility !== "anonymous")
+                return { success: false, message: "User Doesnt allow Anonymous limit",anonymousCheck:false };
+            else
+                return { success: false, message: "Limit reached",anonymousCheck:true };
         }
 
         // Insert signature
@@ -52,7 +60,7 @@ export const sendSignAnonymousRepository = async (
 };
 
 export const sendSignRepository = async(receiver_id,user_id,signData)=>{
-    console.log(receiver_id,user_id);
+    // console.log(receiver_id,user_id);
     return await pool.query(
         `WITH is_friend AS (
             SELECT EXISTS (
@@ -121,6 +129,30 @@ export const deleteAnonymousSignRepository = async(user_id,sign_id)=>{
         `DELETE FROM signatures 
         WHERE user_id = $1 AND sign_id = $2 AND type='anonymous'`,
         [user_id,sign_id]
+    );
+}
+
+export const getOldStickerAnoRepository = async(user_id,sign_id)=>{
+    return await pool.query(
+        `SELECT sticker FROM signatures 
+        WHERE user_id = $1 AND sign_id = $2 AND type='anonymous'`,
+        [user_id,sign_id]
+    );
+}
+
+export const deleteNonAnonymousSignRepository = async(user_id,sign_id,author_id)=>{
+    return await pool.query(
+        `DELETE FROM signatures 
+        WHERE user_id = $1 AND sign_id = $2 AND author_id = $3 AND type <>'anonymous'`,
+        [user_id,sign_id,author_id]
+    );
+}
+
+export const getOldStickerNonAnoRepository = async(user_id,sign_id,author_id)=>{
+    return await pool.query(
+        `SELECT sticker FROM signatures 
+        WHERE user_id = $1 AND sign_id = $2 AND author_id = $3 AND type <>'anonymous'`,
+        [user_id,sign_id,author_id]
     );
 }
 

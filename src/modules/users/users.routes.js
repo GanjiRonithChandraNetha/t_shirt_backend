@@ -2,7 +2,8 @@ import { Router } from "express";
 import { forgotPasswordLimiter } from "../../shared/middleware/forgotPasswordLimiter.js";
 import {
     userRegistrationController,
-    setProfliePicController,
+    // setProfliePicController,
+    setProfliePicControllerV2,
     setPreRegistrationDetailsController,
     forgotPasswordRequestController,
     resetPasswordController,
@@ -10,7 +11,8 @@ import {
     getProfileController,
     setKnowMeController,
     getAllUsersInCollegeController,
-    setVisibilityController
+    setVisibilityController,
+    sendEmailVerificationOTPController
 } from './users.controllers.js'
 import { profilePicUpload } from "../../shared/middleware/multer.middleware.js";
 import { jwtChecker } from "../../shared/middleware/jwtChecker.js";
@@ -22,8 +24,13 @@ router.post('/auth/register',userRegistrationController);
 router.post('/auth/forgot-password',forgotPasswordLimiter,forgotPasswordRequestController);
 router.post('/auth/reset-password',resetPasswordController);
 router.post('/auth/login',loginController);
+router.post('/auth/verify/email',sendEmailVerificationOTPController);
 
-router.patch('/user/profile-pic',jwtChecker,profilePicUpload.single('profile_pic'),setProfliePicController);
+// version 1 : doesnt use Object Storage
+// router.patch('/user/profile-pic',jwtChecker,profilePicUpload.single('profile_pic'),setProfliePicController);
+// version 2 : uses Object Storage
+router.patch('/user/profile-pic',jwtChecker,setProfliePicControllerV2);
+
 router.post('/user',jwtChecker,setPreRegistrationDetailsController); // add data constaint middleware 
 router.get('/user/:user_id',jwtChecker,getProfileController);
 router.patch('/user/know-me',jwtChecker,setKnowMeController);

@@ -3,6 +3,7 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "bull": "^4.16.5",
+    "cloudinary": "^2.9.0",
     "cors": "^2.8.6",
     "cron": "^4.4.0",
     "crypto": "^1.0.1",
@@ -22,7 +23,7 @@
     "zod": "^4.3.6"
   },
   "scripts": {
-    "start":"nodemon src/server.js",
-    "render-build":"npm install"
+    "start": "nodemon src/server.js",
+    "render-build": "npm install"
   }
 }

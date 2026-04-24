@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import {
     findUserRepository,
     userRegistrationRepository,
+    getOldProfilePicRepository,
     setProfliePicRepository,
     setPreRegistrationDetailsRepository,
     forgotPasswordRequestRepository,
@@ -14,17 +15,21 @@ import {
     getAllUsersInCollegeRepository,
     setVisibilityRepository
 } from './users.repository.js'
+import cloudinaryConfig from '../../config/cloudinaryConfig.js';
+import { getPublicIdFromUrl } from '../../shared/utils/getPublicIdFromURL.js';
 
 import bcrypt from 'bcrypt';
 import { emailQueue } from '../../shared/utils/queues.js';
 import { ERROR_CODES } from '../../shared/constants/errorCodes.js';
 import jwt from 'jsonwebtoken';
 import { type } from 'os';
+import { generateOTP } from '../../shared/utils/generateOTP.js';
+import { storeOTP,verifyOTP } from './user.redis.service.js';
 
 const salt = Number(process.env.SALT_ROUNDS) || 10;
 const SECRET = process.env.JWT_SECRET;
 export const userRegistrationService = async(payment_id,details)=>{
-    // console.log(details);
+    // // console.log(details);
     const {email,mobile_no} = details;
     const result = await findUserRepository({mobile_no,email});
     if(result.rowCount >= 1)
@@ -34,6 +39,15 @@ export const userRegistrationService = async(payment_id,details)=>{
             400
         );
     
+    // const isOTPMatch = verifyOTP(email,details.otp);
+    // if(!isOTPMatch){
+    //     throw new AppError(
+    //         "INVALID_OTP",
+    //         "wrong otp , \"otp will remain valid for 3 mins only\"",
+    //         400
+    //     )
+    // }
+
     const hashedPassword = await bcrypt.hash(details.password,salt);
     const userData = { ...details, password: hashedPassword};
     const user_details_obtained  = await userRegistrationRepository(userData);
@@ -41,13 +55,61 @@ export const userRegistrationService = async(payment_id,details)=>{
         throw AppError(
             'USER_NOT_CREATED',
             'user not created check with coutomer care',
-            '500'
+            500
         );
     }
     return user_details_obtained;
 }
 
+export const sendEmailVerificationOTPService = async(email)=>{
+    const result = await findUserRepository({mobile_no:"",email});
+    if(result.rowCount >= 1)
+        throw new AppError(
+            "EMAIL_ALREADY EXISTS",
+            "email already exits please use diffrent email number",
+            400
+        );
+    
+    const otp = generateOTP();
+    const response = storeOTP(email,otp)
+    
+    if(!response) throw new AppError(
+        "OTP_ALREADY_SENT",
+        "otp was already generated using"+email,
+        400
+    );
+    
+     await emailQueue.add(
+        "send-email",
+        {
+            to:email,
+            subject:"email verification",
+            otp:otp
+        },
+        {
+            attempts: 5,
+            backoff: {
+                type:"exponential",
+                delay:5000,
+            }
+        }
+    );
+    
+    return {message:"otp has been sent to the for another request you will have to wait for 3 mins"}
+    // send email
+}
+
 export const setProfliePicService = async(filePath,user_id)=>{
+    
+    //delete exisng profile pic before adding the profile pic to the database
+    const oldProfilePicUrlObj = await getOldProfilePicRepository(user_id);
+    const profilePic = oldProfilePicUrlObj?.rows?.[0]?.profile_pic;
+    if(profilePic){
+        const publicId = getPublicIdFromUrl(profilePic);
+        console.log("Deleting:", publicId);
+        await cloudinaryConfig.uploader.destroy(publicId);
+    }
+
     const fileURL = await setProfliePicRepository(filePath,user_id);
     if(!fileURL) throw new AppError(
         "FILE_NOT_SAVED",
@@ -56,6 +118,7 @@ export const setProfliePicService = async(filePath,user_id)=>{
     );
     return fileURL;
 }
+
 
 export const setPreRegistrationDetailsService = async(details,user_id)=>{
     const result = await setPreRegistrationDetailsRepository(details,user_id);
@@ -71,9 +134,9 @@ export const setPreRegistrationDetailsService = async(details,user_id)=>{
 export const forgotPasswordRequestService = async(email)=>{
     const token = crypto.randomBytes(32).toString('hex');
     const expires = new Date(Date.now() + (1000 * 60 * 60 * 3)); // expires in 3hrs
-    // console.log(expires);
-    // console.log(typeof(token));
-    // console.log(typeof(email));
+    // // console.log(expires);
+    // // console.log(typeof(token));
+    // // console.log(typeof(email));
     const result = await forgotPasswordRequestRepository({token,expires,email});
     if(!result.rows || result.rows.length === 0){
         throw new AppError(
@@ -99,13 +162,13 @@ export const forgotPasswordRequestService = async(email)=>{
             }
         }
     );
-    console.log(details);
+    // console.log(details);
     return details.reset_token_expires;
 }
 
 export const resetPasswordService = async(token,password,user_id)=>{
     const result1 = await getUserResetToken(user_id);
-    console.log(result1);
+    // console.log(result1);
     const {reset_token,resent_token_expires} = result1.rows[0];
     const expires = new Date(resent_token_expires);
     

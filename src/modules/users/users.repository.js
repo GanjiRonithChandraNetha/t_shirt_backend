@@ -3,7 +3,7 @@ import AppError from '../../shared/utils/AppError.js';
 
 
 export const findUserRepository = async({email,mobile_no})=>{
-    console.log("EMAIL"+email+","+mobile_no);
+    // console.log("EMAIL"+email+","+mobile_no);
     return await pool.query(
         "SELECT user_id FROM users WHERE email=$1 OR mobile_no=$2",
         // "SELECT 1 ",
@@ -29,18 +29,25 @@ export const userRegistrationRepository = async({
 }
 
 export const setProfliePicRepository = async(filePath,user_id)=>{
-    // console.log(filePath,user_id);
+    // // console.log(filePath,user_id);
     const result = await pool.query(`
             UPDATE users SET profile_pic = $1 WHERE user_id = $2 RETURNING profile_pic;
         `,[filePath,user_id]
     );
-    // console.log(result);
+    // // console.log(result);
     if(result.rows.length == 0) throw new AppError(
         "USER_DOESNT_EXISTS",
         "there is no user with provided user_id please login in again",
         400
     )
     return result.rows[0];
+}
+
+export const getOldProfilePicRepository = async(user_id)=>{
+    return await pool.query(
+        `SELECT profile_pic FROM users WHERE user_id = $1`,
+        [user_id]
+    );
 }
 
 export const setPreRegistrationDetailsRepository = async(
@@ -72,8 +79,8 @@ export const setPreRegistrationDetailsRepository = async(
 }
 
 export const forgotPasswordRequestRepository = async({token,expires,email})=>{
-    console.log(typeof(token));
-    console.log(token);
+    // console.log(typeof(token));
+    // console.log(token);
 
     // const result1 = await pool.query(
     //     `SELECT user_id,name FROM users WHERE email = 'ronithganji21@gmail.com' `
@@ -86,9 +93,9 @@ export const forgotPasswordRequestRepository = async({token,expires,email})=>{
             RETURNING reset_token_expires,user_id,reset_token;
         `,[token,expires,email]
     );
-    // console.log(email,expires,token);
-    // console.log(result1);
-    // console.log(result);
+    // // console.log(email,expires,token);
+    // // console.log(result1);
+    // // console.log(result);
 
     if(result.rows.length === 0)
         throw new AppError(
@@ -147,7 +154,7 @@ export const setKnowMeRepository = async(user_id,know_me)=>{
 
 
 export const getAllUsersInCollegeRepository = async(section_id)=>{
-    console.log(section_id);
+    // console.log(section_id);
     const result =  await pool.query(`SELECT 
             u.user_id,
             b.branch_name,
@@ -169,7 +176,7 @@ export const getAllUsersInCollegeRepository = async(section_id)=>{
         ORDER BY u.name;`,
         [section_id]
     );
-    console.log(result.rows,result);
+    // console.log(result.rows,result);
     return result;
 }
 

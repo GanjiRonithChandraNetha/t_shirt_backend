@@ -39,7 +39,7 @@ export const profilePicUpload = multer({
 
 const stikerStorage = multer.diskStorage({
     destination:(req,file,cb)=>{
-        console.log(process.cwd());
+        //console.log(process.cwd());
         cb(null,path.join(process.cwd(),"images","stickers"));
     },
     filename:(req,file,cb)=>{

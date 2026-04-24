@@ -22,7 +22,7 @@ const getSectionsRepository = async(branch_id)=>{
 }
 
 const getCollegeStatsRepository = async(user_id)=>{
-    console.log(user_id);
+    // console.log(user_id);
     const data = await pool.query(`
             SELECT
                 -- Enrollment
@@ -70,7 +70,7 @@ const getCollegeStatsRepository = async(user_id)=>{
             branch_cap.total,
             ul.strength;
         `,[user_id]);
-    console.log(data);
+    // console.log(data);
     return data.rows[0];
 }
 

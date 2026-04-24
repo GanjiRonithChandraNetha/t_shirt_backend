@@ -64,8 +64,8 @@ export const finalizeClassImageForeEverySectionService = async()=>{
         };
     const result = await finalizeClassImageForeEverySectionRepository();
     if(result.rows.length == 0){
-        console.log("sections images not set internal server error check the query ");
-        console.log(result);
+        // console.log("sections images not set internal server error check the query ");
+        // console.log(result);
         return null;
     }
     return {

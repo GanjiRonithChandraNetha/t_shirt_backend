@@ -55,8 +55,8 @@ export const acceptOrRejectRequestRepository = async({follower_id,user_id,type})
         "SELECT * FROM followers WHERE follower=$2 AND status = 'pending' AND followee=$1",
         [follower_id,user_id]
     );
-    console.log(follower_id,user_id);
-    console.log(result.rows,result.rowCount);
+    // console.log(follower_id,user_id);
+    // console.log(result.rows,result.rowCount);
     return await pool.query(
         `UPDATE followers SET status = $1 
         WHERE follower=$2 AND status = 'pending' AND followee=$3

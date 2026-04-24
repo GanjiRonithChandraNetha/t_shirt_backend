@@ -4,6 +4,7 @@ import {ERROR_CODES} from '../../shared/constants/errorCodes.js'
 import { impDates } from "../../shared/constants/dates.js";
 import { 
     userRegistrationService,
+    sendEmailVerificationOTPService,
     setProfliePicService,
     setPreRegistrationDetailsService,
     forgotPasswordRequestService,
@@ -19,10 +20,11 @@ import {
     registrationInputValidator,
     preRegistrationDetailsValidators,
     loginValidator,
-    forgotPasswordValidator,
+    emailValidator,
     resetPasswordValidator
 } from "./users.validator.js";
 import {friendlyDateFormat} from "../../shared/utils/friendlyDateFormat.js"
+import { success } from "zod";
 
 
 const know_meLength = process.env.KNOW_ME_LENGTH || 100;
@@ -51,7 +53,8 @@ export const userRegistrationController = asyncHandler(async(req,res)=>{
         mobile_no,
         email,
         size,
-        password
+        password,
+        otp
     } = req.body.details;
     // validate details 
     
@@ -59,20 +62,21 @@ export const userRegistrationController = asyncHandler(async(req,res)=>{
         name,
         section_id,
         mobile_no,
-        email,
+        email:email.toLowerCase(),
         size:size.toUpperCase(),
-        password
+        password,
+        // otp
     });
 
     if(!zodResult.success){
-        console.log(zodResult.error.flatten().fieldErrors);
+        // console.log(zodResult.error.flatten().fieldErrors);
         throw new AppError(
             "INVALID_REGISTRATION_CREDENTIALS",
             zodResult.error.flatten().fieldErrors,
             400
         );
     }
-    // console.log(JSON.stringify(zodResult));
+    // // console.log(JSON.stringify(zodResult));
     const user_details = await userRegistrationService(payment_id,zodResult.data);
     
     const obj = responseDataAggregator(req,{
@@ -83,16 +87,61 @@ export const userRegistrationController = asyncHandler(async(req,res)=>{
     res.status(200).json(obj);
 })
 
+export const sendEmailVerificationOTPController = asyncHandler(async(req,res)=>{
+    const email = req.body.email.toLowerCase();
+    if(!email) throw new AppError(
+        "EMAIL_NOT_SENT",
+        "email not recived",
+        400
+    );
+    const result = emailValidator.safeParse({email});
+    if(!result.success){
+        // console.log("error: ",result.error);
+        throw new AppError(
+            "INVALID_EMAIL",
+            result.error,
+            400
+        );
+    }
+    const data = await sendEmailVerificationOTPService(email);
+    const obj = responseDataAggregator(req,{
+        success:true,
+        data
+    })
+    res.status(200).json(obj);
+});
 
-export const setProfliePicController = asyncHandler(async(req,res)=>{
-    if(!req.file) throw new AppError(
+//version 1 : doenst use Object storage
+// export const setProfliePicController = asyncHandler(async(req,res)=>{
+//     if(!req.file) throw new AppError(
+//         "FILE_NOT_EXISTS",
+//         "file not found",
+//         404
+//     );
+//     // // console.log(req.file);
+//     // // console.log(req.file.path);
+//     const fileURL = await setProfliePicService(req.file.path,req.user.user_id);
+
+//     const obj = responseDataAggregator(req,{
+//         success:true,
+//         data:{
+//             fileURL
+//         }
+//     });
+
+//     res.status(200).json(obj);
+// })
+
+// version 2 : uses Object Storage
+export const setProfliePicControllerV2 = asyncHandler(async(req,res)=>{
+    // console.log(req)
+    if(!req.body.profile_pic) throw new AppError(
         "FILE_NOT_EXISTS",
         "file not found",
         404
     );
-    // console.log(req.file);
-    // console.log(req.file.path);
-    const fileURL = await setProfliePicService(req.file.path,req.user.user_id);
+
+    const fileURL = await setProfliePicService(req.body.profile_pic,req.user.user_id);
 
     const obj = responseDataAggregator(req,{
         success:true,
@@ -135,8 +184,8 @@ export const setPreRegistrationDetailsController = asyncHandler(async(req,res)=>
 export const forgotPasswordRequestController = asyncHandler(async(req,res)=>{
     const email = req.body.email;
     // validate email
-    console.log(email,typeof(email));
-    const zodResult = forgotPasswordValidator.safeParse({email});
+    // console.log(email,typeof(email));
+    const zodResult = emailValidator.safeParse({email});
     if(!zodResult.success)
         throw new AppError(
             "INVALID_EMAIL",
@@ -144,7 +193,7 @@ export const forgotPasswordRequestController = asyncHandler(async(req,res)=>{
             400
         );
     const result = await forgotPasswordRequestService(email);
-    console.log(result);
+    // console.log(result);
     const obj = responseDataAggregator(req,{
         success:true,
         message:"reset link has been sent will expire in "+friendlyDateFormat(result)+`\nwill recive mail if user with ${email} exsits`
@@ -157,7 +206,7 @@ export const forgotPasswordRequestController = asyncHandler(async(req,res)=>{
 export const resetPasswordController = asyncHandler(async(req,res)=>{
     const {token,user_id} = req.query;
     const password = req.body.password;
-    console.log(token,user_id);
+    // console.log(token,user_id);
     //validate password
     const zodResult = resetPasswordValidator.safeParse({password});
     if(!zodResult.success)
@@ -181,9 +230,9 @@ export const resetPasswordController = asyncHandler(async(req,res)=>{
 })
 
 export const loginController = asyncHandler(async(req,res)=>{
-    console.log(req.body);
+    // console.log(req.body);
     const {email,password} = req.body.details;
-    const zodResult = loginValidator.safeParse({email,password});
+    const zodResult = loginValidator.safeParse({email:email.toLowerCase(),password});
     if(!zodResult)
         throw new AppError(
             "INVALID_LOGIN_CREDENTIALS",
@@ -216,7 +265,7 @@ export const getProfileController = asyncHandler(async(req,res)=>{
     else
         user_data = await getProfileService(user_id,false);
     
-    // console.log(user_data);
+    // // console.log(user_data);
 
     const obj = responseDataAggregator(req,{
         success:true,
@@ -265,7 +314,7 @@ export const setVisibilityController = asyncHandler(async(req,res)=>{
     const user_id = req.user.user_id;
     const mode = req.params.mode;
     const result = await setVisibilityService(user_id,mode);
-    // console.log(result);
+    // // console.log(result);
     const obj = responseDataAggregator(req,{
         success:true,
         mode: result

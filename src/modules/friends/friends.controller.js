@@ -58,7 +58,7 @@ export const cancelRequestController = asyncHandler(async(req,res)=>{
 });
 
 export const unfriendController = asyncHandler(async(req,res)=>{
-    console.log("unfrind");
+    // console.log("unfrind");
     const friend_id = req.body.friend_id;
     const user_id = req.user.user_id;
     await unfriendService(user_id,friend_id);

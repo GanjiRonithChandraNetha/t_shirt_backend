@@ -11,6 +11,7 @@ import { responseDataAggregator } from "../../shared/utils/responseDataAggregato
 
 export const getCollegesController = asyncHandler(async (req, res) => {
     const colleges = await getCollegesService();
+    console.log(colleges);
     const obj = responseDataAggregator(req,{ success: true, data: colleges });
     res.status(200).json(obj);
 });

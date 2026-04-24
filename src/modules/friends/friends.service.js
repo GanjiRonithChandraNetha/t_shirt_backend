@@ -47,7 +47,7 @@ export const getPendingRequestReceivedService = async(user_id)=>{
 }
 
 export const sendRequestService = async(user_id,followee_id)=>{
-    console.log(user_id,followee_id);
+    // console.log(user_id,followee_id);
     if(!followee_id)
         throw new AppError(
             "INVALID_FRIEND_ID",
@@ -60,9 +60,9 @@ export const sendRequestService = async(user_id,followee_id)=>{
             ERROR_CODES.INVALID_USER_ID.message,
             ERROR_CODES.INVALID_USER_ID.statusCode
         );
-    console.log("user_id: ",user_id,"  followee_id: "+followee_id);
+    // console.log("user_id: ",user_id,"  followee_id: "+followee_id);
     const result = await sendRequestRepository(user_id,followee_id);
-    console.log(result);
+    // console.log(result);
     if(result.rowCount == 0)
         throw new AppError(
             "REQUEST_ALREADY_EXISTS",
@@ -73,7 +73,7 @@ export const sendRequestService = async(user_id,followee_id)=>{
 }
 
 export const acceptOrRejectRequestService = async( {follower_id,user_id,type})=>{
-    console.log(["accept","reject"].includes(type) , type);
+    // console.log(["accept","reject"].includes(type) , type);
     if(!["accept","reject"].includes(type))
         throw new AppError(
             "INVALID_RESPONSE",

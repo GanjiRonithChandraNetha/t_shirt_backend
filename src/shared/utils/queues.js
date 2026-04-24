@@ -1,5 +1,9 @@
+import 'dotenv/config';
 import Queue from 'bull';
 
 export const emailQueue = new Queue('emailQueue',{
-    redis:{host:"127.0.0.1",port:6379}
+    redis:{
+        host:process.env.REDIS_2_HOST,
+        port:process.env.REDIS_2_PORT
+    }
 })
