@@ -7,9 +7,11 @@ let client = null;
 export const initRedis = async () => {
     if (client) return client;
 
-    client = new Redis({
-        host: process.env.REDIS_1_HOST,
-        port: process.env.REDIS_1_PORT,
+    client = process.env.REDIS_URL_1?
+    new Redis(process.env.REDIS_URL_1):
+    new Redis({
+        host: "127.0.0.1",
+        port: 6379,
         maxRetriesPerRequest: null, // important for queues when i already mention this do i have to check this again
     });
 
